@@ -88,27 +88,70 @@
 - ✅ Route `/auth/check-character` pour vérifier création personnage
 - ✅ Protection: 1 seul personnage joueur, non supprimable, impossible de supprimer si en mission
 
+### 6. Gestion Buildings (100%)
+- ✅ **Service complet (11 méthodes)**:
+  - `build_building()` - Construction avec vérif ressources, prérequis, placement
+  - `upgrade_building()` - Amélioration 1-5 niveaux (coût: base × niveau × 1.5)
+  - `destroy_building()` - Destruction avec remboursement 50%
+  - `calculate_production_rate()` - Production = base × niveau × (1 + 0.1 × nb_PNJ)
+  - `toggle_building_active()` - Activer/désactiver production
+  - Catalogue 20 types bâtiments
+- ✅ **Placement automatique en spirale d'Ulam**:
+  - Centre: position (50, 50)
+  - Auto-placement si grid_x = -1, grid_y = -1
+  - Vérification positions occupées
+  - Grille 100×100
+- ✅ **20 Types de bâtiments** (4 catégories):
+  - **Base**: Entrepôt (stockage +500), Auberge (moral +10), Bibliothèque (recherche +20%)
+  - **Production**: Puits (eau), Scierie (bois), Carrière (pierre), Mine (métal), Ferme (blé), Chasse (viande), Textile, Herboriste
+  - **Militaire**: Forge, Armurerie, Caserne, Tour de guet
+  - **Bien-être**: Infirmerie, École, Temple
+- ✅ **Système amélioration**:
+  - Niveaux 1-5
+  - Production × niveau
+  - Stockage × niveau
+  - Coût upgrade progressif
+- ✅ **9 Routes API**:
+  - `GET /buildings/catalog` - Catalogue complet
+  - `GET /buildings/catalog/{key}` - Détails type
+  - `GET /buildings` - Instances du village
+  - `GET /buildings/{id}` - Détails instance
+  - `POST /buildings/build` - Construire
+  - `POST /buildings/{id}/upgrade` - Améliorer
+  - `DELETE /buildings/{id}` - Détruire (remboursement configurable)
+  - `POST /buildings/{id}/toggle` - Activer/désactiver
+  - `GET /buildings/{id}/production` - Calculer production
+- ✅ **Gestion prérequis**:
+  - Vérification recherches (placeholder pour futur service)
+  - Vérification bâtiments requis
+  - Nombre max instances par type
+- ✅ **Gestion ressources**:
+  - Consommation automatique construction
+  - Remboursement destruction
+  - Vérification disponibilité
+
 ## 🔄 En cours
 
-### 6. Gestion Buildings (0%)
-**Prochaine étape** : Implémentation du service buildings
+### 7. Gestion Missions (0%)
+**Prochaine étape** : Implémentation du service missions
 
 Fonctionnalités à implémenter:
-- [ ] Construction bâtiments (20 types, 4 catégories)
-- [ ] Placement automatique en spirale
-- [ ] Système d'amélioration (1-5 niveaux)
-- [ ] Calcul production avec PNJ assignés
-- [ ] Prérequis recherches
-- [ ] Routes CRUD complètes
+- [ ] 3 types missions (Récolte/Sauvetage/Exploration)
+- [ ] Formation squads (2-5 PNJ)
+- [ ] Calcul taux réussite (stats, équipement, danger)
+- [ ] Combat turn-by-turn
+- [ ] Rewards aléatoires
+- [ ] Rappel anticipé
+- [ ] Durée temps réel (workers)
 
 ## 📊 Statistiques
 
 ### Code produit
 - **Modèles**: 18 fichiers SQLAlchemy
 - **Schémas**: 13 fichiers Pydantic (50+ classes)
-- **Services**: 4 (auth, user, village, character)
-- **Routes**: 4 routers (auth, user, village, character)
-- **Endpoints API**: ~35 routes fonctionnelles
+- **Services**: 5 (auth, user, village, character, building)
+- **Routes**: 5 routers (auth, user, village, character, building)
+- **Endpoints API**: ~45 routes fonctionnelles
 
 ### Tests
 - ✅ Serveur démarre sans erreur
@@ -116,19 +159,19 @@ Fonctionnalités à implémenter:
 - ⏳ Script test API complet (test_api_flow.py créé)
 
 ### Commits Git
-- 5 commits principaux
+- 7 commits principaux
 - Repository: https://github.com/Scoplop/Loots-Live.git
 
 ## 🎯 Roadmap
 
-### Phase 1 : Core Game (En cours - 50%)
+### Phase 1 : Core Game (En cours - 60%)
 - [x] Infrastructure
 - [x] Authentification
 - [x] Users
 - [x] Villages de base
 - [x] **Characters (PNJ)**
-- [ ] **Buildings (placement, production)** ← Actuellement
-- [ ] Missions (3 types)
+- [x] **Buildings (placement, production)**
+- [ ] **Missions (3 types)** ← Actuellement
 - [ ] Equipment (génération, rareté)
 - [ ] Research (arbre techno)
 
@@ -189,5 +232,5 @@ Docs API : http://127.0.0.1:8000/docs
 
 ---
 
-**Dernière mise à jour** : 07/11/2025 22:00  
-**Status** : ✅ Système Characters complet (50% Phase 1), prêt pour Buildings
+**Dernière mise à jour** : 07/11/2025 22:10  
+**Status** : ✅ Système Buildings complet (60% Phase 1), prêt pour Missions
