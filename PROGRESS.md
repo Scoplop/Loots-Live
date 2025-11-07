@@ -231,26 +231,78 @@
   - Appartenance village vérifiée
   - Slot compatible avec type équipement
 
+### 9. Gestion Research (100%)
+- ✅ **Service complet (18 méthodes)**:
+  - `initialize_village_researches()` - Initialisation 25 recherches (LOCKED/AVAILABLE)
+  - `start_research()` - Démarrage avec vérif prérequis + consommation ressources
+  - `complete_research()` - Complétion + déblocage recherches dépendantes
+  - `cancel_research()` - Annulation sans remboursement
+  - `get_tech_tree()` - Arbre complet par catégorie
+  - `get_available_researches()` - Recherches débloquées
+  - `get_research_bonuses()` - Calcul bonus actifs cumulés
+  - `check_prerequisites()` - Vérification prérequis
+  - `can_afford_research()` - Vérification ressources
+  - `_unlock_dependent_researches()` - Déblocage auto après complétion
+- ✅ **25 Recherches** organisées en 4 catégories:
+  - **Agriculture (5)**: agriculture_1/2, livestock, herbalism, irrigation
+  - **Military (6)**: basic/advanced weapons/armor, tactics, fortification
+  - **Economy (7)**: basic/advanced trade, craftsmanship, metallurgy, textile_industry, mining
+  - **Science (7)**: basic/advanced research, medicine, engineering, alchemy, ancient_knowledge
+- ✅ **Système prérequis**:
+  - Chaînes logiques (ex: agriculture_1 → agriculture_2 → irrigation)
+  - Multi-prérequis (ex: medicine requiert basic_research + herbalism)
+  - Déblocage automatique quand tous prérequis complétés
+- ✅ **Coûts recherches**:
+  - Ressources variées (wood, metal, herb, book, rare_ore, ancient_relic, etc.)
+  - knowledge_points (10-100 selon complexité)
+  - Durée 1-12 heures selon avancement tech
+- ✅ **Effets recherches**:
+  - `production_bonus`: +10% à +25% production
+  - `mission_success_bonus`: +5% à +15% taux succès missions
+  - `construction_speed_bonus`: +10% à +25% vitesse construction
+  - `research_speed_bonus`: +10% à +30% vitesse recherche
+  - `unlocks_buildings`: Déblocage bâtiments (greenhouse, stable, foundry, mine, etc.)
+  - `unlocks_equipment`: Déblocage équipements (iron_sword, steel_armor, mithril_gear, etc.)
+  - `special_ability`: Capacités spéciales (heal_boost, tactical_advantage, better_prices, etc.)
+- ✅ **9 Routes API**:
+  - `POST /researches/initialize` - Initialiser recherches village
+  - `GET /researches/tree` - Arbre tech complet
+  - `GET /researches/available` - Recherches disponibles
+  - `GET /researches` - Liste avec filtres (status, category)
+  - `GET /researches/{id}` - Détails recherche
+  - `POST /researches/{key}/start` - Démarrer recherche
+  - `POST /researches/{id}/complete` - Compléter (option force)
+  - `POST /researches/{id}/cancel` - Annuler (sans remboursement)
+  - `GET /researches/bonuses/active` - Bonus actifs
+- ✅ **Statuts recherche**:
+  - **LOCKED**: Prérequis manquants
+  - **AVAILABLE**: Débloquée, peut être démarrée
+  - **IN_PROGRESS**: En cours (timer actif)
+  - **COMPLETED**: Terminée (bonus actifs)
+- ✅ **Système bonus**:
+  - Calcul automatique bonus cumulés de toutes recherches complétées
+  - Multiplicateurs production, vitesse construction/recherche
+  - Liste bâtiments/équipements débloqués
+  - Capacités spéciales activées
+- ✅ **Validations**:
+  - Une seule recherche en cours à la fois
+  - Vérification prérequis avant démarrage
+  - Vérification ressources + consommation
+  - Déblocage automatique recherches dépendantes après complétion
+  - Protection village (recherches propres à chaque village)
+
 ## 🔄 En cours
 
-### 9. Gestion Research (0%)
-**Prochaine étape** : Implémentation du service research (arbre technologique)
-
-Fonctionnalités à implémenter:
-- [ ] Arbre technologique (20+ recherches)
-- [ ] Prérequis chaînés
-- [ ] Coûts progressifs (ressources + temps)
-- [ ] Déblocages bâtiments/équipements
-- [ ] Routes CRUD complètes
+Aucune fonctionnalité en cours. **Phase 1 Core Game terminée à 100% !** 🎉
 
 ## 📊 Statistiques
 
 ### Code produit
 - **Modèles**: 18 fichiers SQLAlchemy
-- **Schémas**: 13 fichiers Pydantic (50+ classes)
-- **Services**: 7 (auth, user, village, character, building, mission, equipment)
-- **Routes**: 7 routers (auth, user, village, character, building, mission, equipment)
-- **Endpoints API**: ~65 routes fonctionnelles
+- **Schémas**: 13 fichiers Pydantic (55+ classes)
+- **Services**: 8 (auth, user, village, character, building, mission, equipment, research)
+- **Routes**: 8 routers (auth, user, village, character, building, mission, equipment, research)
+- **Endpoints API**: ~74 routes fonctionnelles
 
 ### Tests
 - ✅ Serveur démarre sans erreur
@@ -258,12 +310,12 @@ Fonctionnalités à implémenter:
 - ⏳ Script test API complet (test_api_flow.py créé)
 
 ### Commits Git
-- 11 commits principaux
+- 12 commits principaux
 - Repository: https://github.com/Scoplop/Loots-Live.git
 
 ## 🎯 Roadmap
 
-### Phase 1 : Core Game (En cours - 80%)
+### Phase 1 : Core Game (TERMINÉE - 100%) ✅
 - [x] Infrastructure
 - [x] Authentification
 - [x] Users
@@ -272,7 +324,7 @@ Fonctionnalités à implémenter:
 - [x] **Buildings (placement, production)**
 - [x] **Missions (3 types)**
 - [x] **Equipment (génération, rareté)**
-- [ ] **Research (arbre techno)** ← Actuellement
+- [x] **Research (arbre techno)** ✅
 
 ### Phase 2 : Game Loop (0%)
 - [ ] Workers background (production, missions, events, healing)
