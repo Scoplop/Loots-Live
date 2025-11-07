@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 
 from backend.app.config import settings
 from backend.app.database import init_db, close_db
-from backend.app.routes import auth, user
+from backend.app.routes import auth, user, village
 
 
 @asynccontextmanager
@@ -75,6 +75,7 @@ app.add_middleware(
 # Inclusion des routes
 app.include_router(auth.router)
 app.include_router(user.router)
+app.include_router(village.router)
 
 
 @app.get("/", tags=["Root"])

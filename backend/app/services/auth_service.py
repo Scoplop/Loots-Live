@@ -10,6 +10,7 @@ from fastapi import HTTPException, status
 
 from backend.app.models.user import User
 from backend.app.schemas.user import UserCreate, UserLogin, Token
+from backend.app.schemas.village import VillageCreate
 from backend.app.utils.auth import get_password_hash, verify_password, create_access_token
 
 
@@ -66,6 +67,17 @@ class AuthService:
         db.add(new_user)
         await db.commit()
         await db.refresh(new_user)
+        
+        # Créer automatiquement un village pour le nouvel utilisateur
+        from backend.app.services.village_service import VillageService
+        
+        village_service = VillageService(db)
+        default_village_name = f"Village de {user_data.username}"
+        
+        await village_service.create_village(
+            user_id=new_user.id,
+            village_data=VillageCreate(name=default_village_name)
+        )
         
         return new_user
     
