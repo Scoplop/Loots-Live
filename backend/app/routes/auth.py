@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.app.database import get_db
 from backend.app.schemas.user import UserCreate, UserLogin, UserResponse, Token
 from backend.app.services.auth_service import AuthService
+from backend.app.services.character_service import CharacterService
 from backend.app.utils.dependencies import get_current_user
 from backend.app.models.user import User
 
@@ -74,3 +75,35 @@ async def logout():
     Cette route existe pour la cohérence de l'API.
     """
     return {"message": "Déconnexion réussie. Supprimez le token côté client."}
+
+
+@router.get("/check-character", status_code=status.HTTP_200_OK)
+async def check_character_created(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Vérifie si l'utilisateur a créé son personnage joueur.
+    
+    Retourne:
+    - **has_character**: true si le personnage joueur existe, false sinon
+    - **message**: Message d'information
+    
+    Utile pour rediriger vers la page de création de personnage après inscription.
+    """
+    service = CharacterService(db)
+    character = await service.get_player_character(current_user.id)
+    
+    if character:
+        return {
+            "has_character": True,
+            "message": "Personnage joueur déjà créé",
+            "character_id": character.id,
+            "character_name": character.name
+        }
+    else:
+        return {
+            "has_character": False,
+            "message": "Vous devez créer votre personnage joueur"
+        }
+
