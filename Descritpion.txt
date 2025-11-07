@@ -1,0 +1,2865 @@
+========================================== INSTRUCTIONS CRITIQUES ==========================================
+
+⚠️ CE PROJET PART DE ZÉRO ⚠️
+
+MÉTHODOLOGIE OBLIGATOIRE :
+1. Lire INTÉGRALEMENT ce fichier Description.txt avant toute action
+2. Créer DIRECTEMENT la version finale et production-ready (pas de POC/prototype)
+3. Architecture propre dès le départ (pas de dette technique)
+4. Avancer étape par étape avec validation à chaque milestone
+5. NE JAMAIS créer de code temporaire "à améliorer plus tard"
+6. Chaque fonctionnalité doit être COMPLÈTE avant de passer à la suivante
+
+INTERDICTIONS :
+❌ Ne pas créer de version "proof of concept" qu'il faudra réécrire
+❌ Ne pas implémenter partiellement en se disant "on améliorera"
+❌ Ne pas laisser de code mort ou commenté
+❌ Ne pas créer de dépendances circulaires
+❌ Ne pas mélanger logique métier et présentation
+
+RÈGLES D'OR :
+✅ Code propre, commenté, maintenable dès la première ligne
+✅ Structure modulaire claire (séparation des responsabilités)
+✅ Tests unitaires pour chaque module critique
+✅ Documentation inline pour chaque fonction complexe
+✅ Gestion d'erreurs exhaustive (pas de crash silencieux)
+✅ Performance optimisée dès le départ (pas de refactoring massif après)
+
+Si une spécification est ambiguë, DEMANDER avant d'implémenter.
+Si une fonctionnalité semble complexe, PROPOSER une architecture avant de coder.
+Si un choix technique a des impacts, EXPLIQUER les alternatives.
+
+------------------------------------------- Ton contexte --------------------------------------------------
+Tu es le développeur de l'application, alors que l'humain qui décrit ce document est le PO qui définit les besoins.
+Les choix techniques et autres sont à ta charge. L'application doit fonctionner en local sur l'ordinateur actuel.
+Tu dois créer des scripts que je peux déplacer sur mon bureau Windows pour lancer le service / arrêter le service etc... 
+Tu dois gérer la maintenance et le développement, personne ne regardera le code, tu dois t'assurer que le code mort ne reste pas, que le code soit propre et maintenable.
+
+------------------------------------------- Application information --------------------------------------------------
+- Nom: Loots&Live
+- Service Web (Python - Flask/FastAPI -- à définir)
+- UI page Web (si tu as mieux pour répondre au besoin, cette donnée peut être modifiée -- à définir)
+- DB SQLite avec scripts pour :
+  * Initialisation
+  * Import/Export
+  * Remise à zéro (suppression de tous les comptes pour mise en production ou test)
+- Définis les autres besoins techniques
+- Thème: Jeu de survie/gestion au thème post-apocalyptique style Fallout (sans récupérer les items/noms, juste le style graphique)
+
+- Support UI: Téléphone first mais responsif PC (moins important !!! uniquement pour les tests).
+
+------------------------------------------- PNJ --------------------------------------------------
+Il existe 2 types de PNJ :
+
+1) PNJ Joueur : 
+   - Géré par l'utilisateur
+   - Ne consomme pas les ressources de survie (nourriture, eau, etc.)
+   - Peut effectuer les mêmes actions que les PNJ IA (assignation à une tâche de production, partir en mission)
+
+2) PNJ IA : 
+   - Générés aléatoirement
+   - Obtenus via des missions de recrutement
+
+PERSONNALITÉS PNJ (PNJ IA uniquement) :
+
+Chaque PNJ IA possède une personnalité parmi 10 types prédéfinis qui influence :
+- Patterns de dialogue (chat contextuel)
+- Réactions aux événements (triggers positifs/négatifs)
+- Impact relationnel différencié
+- Modificateur d'humeur de base
+
+Liste des 10 personnalités :
+
+1. **AMICAL** : Chaleureux et accueillant
+   - Triggers + : bonjour, merci, aide, bien
+   - Triggers - : non, jamais, mal, problème
+   - Impact relations : +2 (positif), -1 (négatif)
+   - Modificateur humeur : +1
+   - Thèmes favoris : village, amitié, entraide
+
+2. **TIMIDE** : Hésitant et réservé
+   - Triggers + : gentil, aide, comprends, doucement
+   - Triggers - : fort, crier, urgent, vite
+   - Impact relations : +3 (positif), -2 (négatif)
+   - Modificateur humeur : -1
+   - Thèmes favoris : nature, calme, livres, solitude
+
+3. **AUTORITAIRE** : Ferme et directif
+   - Triggers + : respect, discipline, ordre, règles
+   - Triggers - : désordre, chaos, paresse
+   - Impact relations : +1 (positif), -3 (négatif)
+   - Modificateur humeur : 0
+   - Thèmes favoris : organisation, responsabilité, sécurité
+
+4. **SAGE** : Posé et expérimenté
+   - Triggers + : sagesse, conseil, expérience, calme
+   - Triggers - : précipitation, ignorance, arrogance
+   - Impact relations : +2 (positif), -1 (négatif)
+   - Modificateur humeur : +1
+   - Thèmes favoris : histoire, philosophie, enseignement
+
+5. **JOVIAL** : Joyeux et optimiste
+   - Triggers + : rire, fête, joie, plaisir
+   - Triggers - : tristesse, sérieux, ennui
+   - Impact relations : +2 (positif), -1 (négatif)
+   - Modificateur humeur : +2
+   - Thèmes favoris : fêtes, humour, divertissement
+
+6. **MÉTHODIQUE** : Précis et organisé
+   - Triggers + : plan, organisation, efficacité, précision
+   - Triggers - : improvisation, désordre, chaos
+   - Impact relations : +1 (positif), -2 (négatif)
+   - Modificateur humeur : 0
+   - Thèmes favoris : organisation, planification, optimisation
+
+7. **AVENTURIER** : Audacieux et explorateur
+   - Triggers + : exploration, aventure, découverte, risque
+   - Triggers - : routine, ennui, sécurité
+   - Impact relations : +2 (positif), -1 (négatif)
+   - Modificateur humeur : +1
+   - Thèmes favoris : missions, exploration, dangers
+
+8. **MATERNEL** : Protecteur et bienveillant
+   - Triggers + : protection, soin, famille, enfants
+   - Triggers - : danger, violence, négligence
+   - Impact relations : +3 (positif), -1 (négatif)
+   - Modificateur humeur : +1
+   - Thèmes favoris : famille, santé, bien-être
+
+9. **GROGNON** : Râleur et pessimiste
+   - Triggers + : plainte, problème, critique
+   - Triggers - : joie, optimisme, fête
+   - Impact relations : +1 (positif), -2 (négatif)
+   - Modificateur humeur : -2
+   - Thèmes favoris : problèmes, critiques, récriminations
+
+10. **MYSTÉRIEUX** : Énigmatique et secret
+    - Triggers + : secret, mystère, discrétion, ombre
+    - Triggers - : curiosité, question, révélation
+    - Impact relations : +1 (positif), -3 (négatif)
+    - Modificateur humeur : 0
+    - Thèmes favoris : secrets, mystères, solitude
+
+COMPATIBILITÉS PERSONNALITÉS :
+
+Compatibles (gain relationnel ×1.5) :
+- Amical + Jovial
+- Sage + Méthodique
+- Aventurier + Jovial
+- Maternel + Amical
+- Méthodique + Sage
+
+Incompatibles (perte relationnelle ×2) :
+- Autoritaire + Grognon
+- Timide + Aventurier
+- Grognon + Jovial
+- Mystérieux + Amical
+- Méthodique + Aventurier
+
+SANTÉ PNJ :
+
+- **PV (Points de Vie)** : Max = 100 + (Endurance × 10)
+- **Guérison automatique** : +5 PV toutes les 30 secondes (si PV < Max ET pas en mission ET pas blessé)
+- **Blessures en mission** : 
+  * Si échec mission : -20% PV, statut "blessé" pendant 12h réelles
+  * PNJ blessé : -20% toutes stats, indisponible pour missions
+- **Centre Médical** (bâtiment) : Accélère guérison
+  * Niveau 1-10 : +5 à +15 PV/30s
+  * Réduit durée blessure : 12h → (12h ÷ niveau)
+- **État critique** (PV < 20%) :
+  * PNJ indisponible pour missions
+  * Moral -10
+  * Message dans chat village : "[PNJ] est gravement blessé et a besoin de soins !"
+
+RELATIONS PNJ (Détails techniques) :
+
+**Stockage DB :**
+- Table `relations` : character_from_id, character_to_id, value (-100 à +100), last_updated
+- Table `relations_history` : relation_id, old_value, new_value, reason, timestamp
+
+**Évolution automatique :**
+
+1. **Même bâtiment (collègues)** : +1 relation/jour entre tous les PNJ assignés
+   - Calcul : chaque jour à 00h00, pour chaque bâtiment, tous les PNJ gagnent +1 entre eux
+   
+2. **Même mission** :
+   - Mission réussie : +5 relation entre tous les participants
+   - Mission échouée : -10 relation (frustration, blâme mutuel)
+   
+3. **Chat village/bâtiment** : +2 relation par interaction positive générée par IA
+   - Détection automatique dans la réponse IA via parsing JSON
+
+4. **Événements spéciaux** :
+   - Mariage : +20 relation mutuelle (permanent)
+   - Sabotage : -30 relation victime → saboteur
+   - Sauvetage en mission : +15 relation sauvé → sauveur
+   - Conflit résolu (médiation) : +10 entre les 2 PNJ
+
+**Modificateurs par personnalités :**
+
+Gain relationnel **×1.5** si personnalités compatibles :
+- Exemple : Amical + Jovial en mission réussie : +5 × 1.5 = +7 (arrondi)
+
+Perte relationnelle **×2** si personnalités incompatibles :
+- Exemple : Autoritaire + Grognon en mission échouée : -10 × 2 = -20
+
+**Effets des relations :**
+
+| Niveau | Relation | Effets |
+|--------|----------|--------|
+| Amour/Amitié profonde | > +90 | • Ami proche : partagent ressources<br>• Priorité mutuelle missions<br>• Production +10% ensemble |
+| Très bonne | +70 à +90 | • Bonus production +5%<br>• Possibilité mariage<br>• Défendent l'autre dans chat |
+| Bonne | +30 à +69 | • Production normale<br>• Acceptent missions ensemble |
+| Neutre | -29 à +29 | • Aucun effet |
+| Mauvaise | -30 à -49 | • Évitent de se parler<br>• Refusent missions ensemble |
+| Très mauvaise | -50 à -69 | • Malus production -10% ensemble<br>• Conflits dans chat (5%/jour) |
+| Haine | < -70 | • Risque sabotage 5%/semaine<br>• Demandent changement bâtiment |
+
+**Affichage (Page PNJ - Onglet Général) :**
+- Section "Relations importantes" :
+  * Top 5 meilleurs (vert) : barres horizontales [██████░░░░] +85
+  * Top 5 pires (rouge) : barres horizontales [░░░░██████] -62
+  * Clic sur une relation → Modal historique :
+    - Date : 05/11/2025 10h30 - Valeur : +72 → +77 - Raison : "Mission réussie ensemble"
+    - Date : 03/11/2025 14h15 - Valeur : +70 → +72 - Raison : "Travaillent ensemble (Atelier)"
+
+   - Une fois la mission terminée, un PNJ est généré avec des compétences (XP) de base réparties aléatoirement selon la difficulté de la mission
+
+Caractéristiques des PNJ :
+- 3 types de vues : vue du haut, vue de face (2D), vue de discussion
+- Personnalisation : coiffure, yeux, couleur, nez, bouche, taille du corps et autres options
+- Solution technique : pixel art ou autre rendu graphique cohérent (à définir)
+
+Compétences :
+- Chaque PNJ possède un ensemble de compétences de type RPG classique
+- Les compétences influencent les combats ET la production
+- Exemple : la Force améliore la vitesse de certains bâtiments nécessitant de la force ET améliore le maniement des armes lourdes
+
+Traits de caractère :
+- PNJ Joueur : fiche technique type RPG/chat textuel pour spécifier les caractéristiques
+- PNJ IA : génération aléatoire basée sur un ensemble de comportements prédéfinis et mélange de différents traits
+- Utilisation : système de chat avec PNJ et comportement global du village
+
+Système de classes (PNJ Joueur uniquement) :
+Le joueur choisit une classe au moment de la création de son personnage, ce qui détermine la répartition de base des points :
+- **Guerrier** : Force +3, Endurance +2, Vitesse +1, autres 0
+- **Éclaireur** : Dextérité +3, Vitesse +2, Chance +1, autres 0
+- **Artisan** : Intelligence +3, Dextérité +2, Force +1, autres 0
+- **Leader** : Intelligence +2, Endurance +2, Chance +2, autres 0
+- **Survivant (équilibré)** : Tous les stats +1
+- Après le choix de classe : le joueur distribue **10 points libres** comme il le souhaite
+- Total au niveau 1 : 16 points de stats (6 de classe + 10 libres)
+
+Système de sexe et reproduction :
+- Chaque PNJ a un sexe (Homme / Femme / Non-binaire)
+- Si 2 PNJ remplissent les conditions suivantes :
+  * Relation mutuelle > +70
+  * Même logement (Maison)
+  * Sexes compatibles (configuration paramétrable)
+  * Présence dans le village depuis > 30 jours
+- Alors : événement "Mariage" (10% de chance par mois)
+  * Annonce dans le chat village
+  * Bonus permanent : +5% production pour les 2 PNJ mariés
+  * Possibilité d'enfant (20% de chance par an) : nouveau PNJ niveau 1 généré
+  * Les enfants grandissent (1 niveau/mois jusqu'au niveau 5, puis progression normale)
+
+Depuis la vue de l'équipement d'un PNJ, on peut voir le PNJ, l'équipement sur le côté et une fiche avec toutes les stats en couleur pour voir les points équipement et points PNJ.
+Si on clique sur un équipement, on verra tous les équipements que nous avons triés par puissance pour éventuellement remplacer.
+
+------------------------------------------- Équipement --------------------------------------------------
+
+UI: 
+- Chaque équipement doit être visible sur les PNJ dans les différentes vues
+- Option pour cacher l'affichage du casque/chapeau depuis la gestion des PNJ (checkbox sur l'icône du casque équipé qui change l'affichage dynamiquement)
+
+Slots d'équipement par PNJ :
+- Casque
+- Épaules
+- Torse
+- Jambes
+- Pieds
+- Gants
+- Bijoux (3 slots)
+- Armes (1 ou 2 en fonction du personnage/classe)
+
+Système de score et stats :
+- Chaque équipement possède un score de puissance de 1 à 99 (aligné sur le niveau des missions)
+- Les PNJ ont un score total calculé en fonction de leur niveau (1-99) + équipement
+- Le score de l'équipement détermine le nombre de points de stats aléatoires générés
+- Exemple : Épée niveau 10 = 25 points de stats à répartir (Force, Dextérité, etc.)
+
+Système de rareté :
+- Commun (Gris) - Disponible dès le niveau 1 - Bonus : 100% du score
+- Peu commun (Vert) - Disponible niveau 5+ - Bonus : 115% du score
+- Rare (Bleu) - Disponible niveau 10+ - Bonus : 130% du score
+- Épique (Violet) - Disponible niveau 20+ - Bonus : 150% du score
+- Légendaire (Orange) - Disponible niveau 50+ - Bonus : 180% du score + effet visuel lumineux
+- Mythique (Rouge/Doré) - Disponible niveau 75+ - Bonus : 220% du score + effet visuel animé
+
+Exemple concret :
+- Casque niveau 15 Commun = 15 points de stats
+- Casque niveau 15 Rare = 15 × 1.30 = 19 points de stats
+- Casque niveau 15 Légendaire = 15 × 1.80 = 27 points de stats 
+
+------------------------------------------- Mission --------------------------------------------------
+
+Types de missions :
+- **Récolte** : permet de récupérer des ressources nécessaires à l'amélioration des bâtiments et création d'équipement
+- **Sauvetage** : permet de recruter des PNJ (0 à 3 maximum)
+- **Exploration (Équipement)** : permet de récupérer de l'équipement
+
+DÉTAILS PAR TYPE DE MISSION :
+
+1. **RÉCOLTE** :
+   - **Objectif** : Récupérer ressources de base et spéciales
+   - **Récompenses** : Ressources + kits de survie
+   - **Quantité** : (Niveau mission × 10) × (1 + nb_PNJ × 0.1) × multiplicateur_difficulté
+     * Niveau 10 : 100-150 ressources + 10-15 kits
+     * Niveau 50 : 500-800 ressources + 50-80 kits
+     * Niveau 100 : 2000-3000 ressources + 150-200 kits
+   - **Durée** : Niveau × 2 minutes (niveau 50 = 100 minutes)
+   - **Difficulté** : Basée sur distance simulée (km = niveau)
+   - **Ennemis** : 0 à (Niveau ÷ 10) ennemis aléatoires
+
+2. **SAUVETAGE** :
+   - **Objectif** : Recruter nouveaux PNJ pour le village
+   - **Récompenses** : 0-3 PNJ + ressources bonus (50% d'une mission Récolte même niveau)
+   - **PNJ recrutés** :
+     * < 50% succès : 0-1 PNJ
+     * 50-80% succès : 1-2 PNJ
+     * > 80% succès : 2-3 PNJ
+   - **Stats PNJ** : Niveau = (Niveau mission ÷ 2) ± 5, stats aléatoires
+   - **Équipement PNJ** : 0-3 items selon difficulté
+     * Niveau 1-20 : 0-1 item Commun
+     * Niveau 21-50 : 1-2 items Peu commun/Rare
+     * Niveau 51-100 : 2-3 items Rare/Épique
+   - **Durée** : Niveau × 3 minutes (niveau 50 = 150 minutes)
+   - **Difficulté** : Basée sur ennemis protecteurs (score = niveau × 1.5)
+
+3. **EXPLORATION (Équipement)** :
+   - **Objectif** : Trouver équipement de qualité
+   - **Récompenses** : 3-7 équipements selon difficulté
+   - **Rareté (courbe exponentielle)** :
+     * Niveau 1-10 (1-10%) : Commun (puissance 1-1000)
+     * Niveau 11-30 (11-30%) : Peu Commun (puissance 100-10,000)
+     * Niveau 31-60 (31-60%) : Rare (puissance 1,000-100,000)
+     * Niveau 61-90 (61-90%) : Épique (puissance 100,000-10M)
+     * Niveau 91-100 (91-100%) : Légendaire (puissance 1M-5G)
+   - **Puissance item** : Formule = Base ^ (Niveau / 10)
+     * Niveau 1 : ~1 point
+     * Niveau 50 : ~43,790 points (Rare)
+     * Niveau 75 : ~13.9M points (Épique)
+     * Niveau 100 : ~4.9G points (Légendaire)
+   - **Quantité** :
+     * Niveau 1-20 : 3 équipements
+     * Niveau 21-50 : 5 équipements
+     * Niveau 51-75 : 6 équipements
+     * Niveau 76-100 : 7 équipements
+   - **Durée** : Niveau × 1 minute (niveau 100 = 100 minutes)
+   - **Slots dédiés** : 40 slots par village (4 actifs simultanés, refresh tous les 7 jours réels)
+
+TIMER AUTOMATIQUE DES MISSIONS :
+
+- **Service background** : Vérifie toutes les 5 secondes l'état des missions en cours
+- **Completion automatique** : Quand timer atteint 0, mission terminée sans action utilisateur
+- **Distribution récompenses** : Automatique en base de données à la completion
+- **Retour PNJ** : Automatique au village avec reset statut "disponible"
+- **Notification** : 
+  * Message dans chat village : "L'escouade de [PNJ1], [PNJ2] est revenue de mission !"
+  * Badge rouge sur icône missions (bottom nav bar)
+- **Rappel prématuré** (bouton "Rappeler") :
+  * Temps retour = (100% - progression%) × durée_totale
+  * Récompenses = progression% × récompenses_calculées
+  * Pénalité : -50% kits de survie utilisés (perdus dans la précipitation)
+
+Système de difficulté (Niveau 1 à 100) :
+
+Puissance requise (pour 80% de réussite affichée = 100% réelle niveau 1-5) :
+
+IMPORTANT : Le nombre de PNJ envoyables dépend des recherches (voir section Recherche)
+- Sans recherche : 1 PNJ maximum
+- Avec toutes les recherches : 10 PNJ maximum
+
+Difficulté ajustée selon la taille d'équipe disponible :
+
+Niveau 1 : Score 15 → 1 PNJ niveau 1 sans équipement (Bonus caché +20%)
+Niveau 2 : Score 25 → 1 PNJ niveau 2 avec quelques équipements (Bonus caché +20%)
+Niveau 3 : Score 40 → 1 PNJ niveau 3 avec équipement basique (Bonus caché +20%)
+Niveau 4 : Score 60 → 1 PNJ niveau 4 bien équipé (Bonus caché +20%)
+Niveau 5 : Score 85 → 1 PNJ niveau 5 full équipé Commun (Bonus caché +20%)
+
+--- Recherche "Duo de survie" recommandée ---
+Niveau 6 : Score 120 → 2 PNJ niveau 3 équipés
+Niveau 7 : Score 160 → 2 PNJ niveau 4 équipés
+Niveau 8 : Score 210 → 2 PNJ niveau 4 full Commun
+Niveau 9 : Score 270 → 2 PNJ niveau 5 full Commun
+Niveau 10 : Score 340 → 2 PNJ niveau 5 full Commun/Peu commun
+
+--- Recherche "Escouade tactique" recommandée ---
+Niveau 15 : Score 600 → 3 PNJ niveau 5 full Peu commun
+Niveau 20 : Score 1000 → 3 PNJ niveau 7 full Peu commun ou 2 PNJ niveau 10 full Rare
+
+--- Recherche "Unité spécialisée" recommandée ---
+Niveau 25 : Score 1600 → 4 PNJ niveau 6 full Rare
+Niveau 30 : Score 2400 → 4 PNJ niveau 8 full Rare
+
+--- Recherche "Groupe d'élite" recommandée ---
+Niveau 35 : Score 3400 → 5 PNJ niveau 9 full Rare
+Niveau 40 : Score 4600 → 5 PNJ niveau 12 full Rare/Épique
+Niveau 45 : Score 6000 → 5 PNJ niveau 15 full Épique
+Niveau 50 : Score 7800 → 5 PNJ niveau 20 full Épique
+
+--- Recherche "Force d'intervention" recommandée ---
+Niveau 55 : Score 9800 → 6 PNJ niveau 22 full Épique
+Niveau 60 : Score 12200 → 6 PNJ niveau 25 full Épique
+Niveau 65 : Score 15000 → 7 PNJ niveau 28 full Épique/Légendaire
+Niveau 70 : Score 18500 → 7 PNJ niveau 32 full Légendaire
+Niveau 75 : Score 22500 → 7 PNJ niveau 38 full Légendaire
+
+--- Recherche "Brigade complète" REQUISE ---
+Niveau 80 : Score 27000 → 8 PNJ niveau 42 full Légendaire
+Niveau 85 : Score 32500 → 9 PNJ niveau 45 full Légendaire
+Niveau 90 : Score 39000 → 9 PNJ niveau 50 full Légendaire/Mythique
+Niveau 95 : Score 47000 → 10 PNJ niveau 55 full Mythique
+Niveau 100 : Score 56000 → 10 PNJ niveau 65 full Mythique optimisés (très difficile)
+
+Prestige (avec bonus accumulés) :
+Niveau 200 : Score 85000 → 10 PNJ niveau 100 full Mythique + bonus prestige 2
+Niveau 500 : Score 150000 → 10 PNJ niveau 100 full Mythique + bonus prestige 5
+Niveau 1000 : Score 280000 → 10 PNJ niveau 100 full Mythique optimisés + tous bonus prestige 10 (quasi-impossible)
+
+Note : Les ennemis rencontrés sont générés aléatoirement (0 à N ennemis selon le niveau), mais le score requis reste fixe.
+Le score affiché est la puissance minimale recommandée de l'équipe pour atteindre 80% de réussite.
+
+Stratégie optimale :
+- Niveaux 1-5 : 1 PNJ, facile (bonus caché)
+- Niveaux 6-10 : Débloquer "Duo de survie" immédiatement
+- Niveaux 11-20 : Débloquer "Escouade tactique" pour progresser confortablement
+- Niveaux 21-40 : Débloquer "Unité spécialisée" puis "Groupe d'élite"
+- Niveaux 41-75 : Optimiser équipement + débloquer "Force d'intervention"
+- Niveaux 76-100 : Nécessite "Brigade complète" + équipement Légendaire/Mythique parfait
+
+Progression :
+- Réussir une mission débloque automatiquement le niveau suivant
+- Interface : barre de progression avec tous les niveaux visibles de 1 à 100
+- Par défaut : reprend le niveau de la dernière mission
+- Bonus débutant caché : niveaux 1-5 ont +20% de réussite non affichée (facilite le début)
+
+Système de kits de survie requis :
+- Niveau 1-4 : 0 kit (tutoriel, pas de risque)
+- Niveau 5-9 : 10 kits
+- Niveau 10-14 : 20 kits
+- Niveau 15-19 : 30 kits
+- Niveau 20-29 : 50 kits
+- Niveau 30-39 : 70 kits
+- Niveau 40-49 : 100 kits
+- Niveau 50-59 : 130 kits
+- Niveau 60-74 : 160 kits
+- Niveau 75-89 : 200 kits
+- Niveau 90-99 : 250 kits
+- Niveau 100 : 300 kits
+
+Note sur les kits : 
+- Les missions de Récolte peuvent donner des kits (5-15 selon niveau)
+- L'Hôpital produit 1-6 kits/heure selon niveau (voir Bâtiments)
+- Production journalière max (Hôpital niveau 10, 4 PNJ) : ~144 kits/jour
+- Cela permet ~1 mission niveau 50/jour ou 1 mission niveau 100 tous les 2 jours (équilibre voulu)
+
+Déroulement :
+- Le joueur sélectionne des PNJ avec leur équipement et les ressources (kits de survie)
+- Calcul du % de réussite basé sur le score de l'équipe VS score requis de la mission
+  * Score équipe < 50% du score requis : 5-20% de réussite
+  * Score équipe = 50% du score requis : 25-40% de réussite
+  * Score équipe = 75% du score requis : 50-65% de réussite
+  * Score équipe = 100% du score requis : 80-90% de réussite (recommandé)
+  * Score équipe = 125% du score requis : 90-95% de réussite
+  * Score équipe ≥ 150% du score requis : 95-99% de réussite (jamais 100%)
+  * Bonus caché niveau 1-5 : +20% au % affiché (aide les débutants)
+  
+- Exemple concret niveau 10 :
+  * Score requis : 180
+  * Équipe : 2 PNJ niveau 5, équipement Commun (score ~90 chacun) = 180 total
+  * % affiché : 80-90% de réussite
+  * Réussite réelle : aléatoire entre 80-90%
+
+- Génération d'une histoire textuelle pour narrer l'aventure
+- Possibilité de rappel prématuré si la mission tourne mal (perte de 50% des kits, aucune récompense)
+
+Combat (si rencontre d'ennemis - aléatoire) :
+- Génération de 0 à X ennemis (X = Niveau mission ÷ 10, arrondi supérieur, max 10)
+- Ennemis avec stats adaptées pour atteindre le score requis total
+- Combat au tour par tour en temps réel (affichage des dégâts, blocages, soins)
+- Toutes les stats du PNJ sont prises en compte (Force, Dextérité, Endurance, Vitesse, etc.)
+- Si défaite en combat : perte de 20-50% de l'équipement (détruit ou volé), PNJ blessés (malus -30% stats pendant 24h)
+- Si victoire : XP bonus et butin supplémentaire
+
+Récompenses par type de mission :
+- Récolte : Ressources de base + chance de kits de survie
+  * Niveau 5 : 50-100 ressources variées + 5-10 kits
+  * Niveau 50 : 500-800 ressources + 50-80 kits
+  * Niveau 100 : 2000-3000 ressources + 150-200 kits
+  
+- Sauvetage : 0-3 PNJ recrutés (aléatoire selon réussite)
+  * < 50% réussite : 0-1 PNJ
+  * 50-80% : 1-2 PNJ
+  * > 80% : 2-3 PNJ
+  * Niveau des PNJ recrutés : (Niveau mission ÷ 2) ± 5 niveaux
+  
+- Exploration : Équipement (quantité et qualité selon niveau)
+  * Niveau 10 : 3-5 équipements Commun niveau 5-10
+  * Niveau 50 : 5-8 équipements Épique niveau 40-55
+  * Niveau 100 : 8-12 équipements Mythique niveau 85-99
+
+Gestion des récompenses :
+- Si inventaire plein de ressources : vente automatique au rabais (50% du coût)
+- Si inventaire plein d'équipement : mise en pause de la récompense avec choix :
+  * Gérer l'inventaire puis récupérer
+  * Envoyer dans le courrier (max 10 courriers, au-delà obligation de vendre)
+- Interface : affichage de la récompense avec options "Vendre" / "Gérer inventaire" / "Courrier"
+------------------------------------------- Puissance et combats --------------------------------------------------
+
+Système de rareté (voir section Équipement pour les détails complets)
+
+Optimisation des PNJ pour le combat :
+- Tank/Gardien : maximiser PV, Endurance, Défense, Provocation
+- DPS Mêlée : Force, Critique, Vitesse d'attaque
+- DPS Distance : Dextérité, Précision, Critique
+- Support : Intelligence, Régénération, Buffs d'équipe
+
+Stats de combat principales :
+- PV (Points de Vie) : santé du personnage
+- Force : dégâts mêlée, capacité de blocage
+- Dextérité : dégâts à distance, esquive
+- Endurance : résistance, réduction de dégâts
+- Vitesse : ordre de jeu, chance d'esquive
+- Intelligence : compétences spéciales, résistance magique
+- Chance : coups critiques, drop de butin
+
+Formules de combat (exemples) :
+- Dégâts mêlée = (Force × 2) + (Niveau ÷ 2)
+- Dégâts distance = (Dextérité × 2) + (Niveau ÷ 2)
+- Critique = Dégâts × (1.5 + (Chance ÷ 100))
+- Esquive = Base 5% + (Vitesse ÷ 10)
+- Défense = Endurance + (Force ÷ 4)
+
+CALCUL PUISSANCE PNJ (Pour estimation succès mission) :
+────────────────────────────────────────────────────────
+
+**Formule de puissance totale d'un PNJ :**
+
+Puissance = Stats_base + Bonus_équipement
+
+Où :
+- **Stats_base** = Σ (Force + Dextérité + Endurance + Intelligence + Vitesse + Chance)
+  * Exemple : PNJ niveau 10 → Force 15 + Dex 12 + End 18 + Int 10 + Vit 14 + Chance 8 = 77
+  
+- **Bonus_équipement** = Σ (attack + defense + speed + luck) de tous les équipements portés
+  * Exemple : Épée (+10 attack) + Armure (+15 defense) + Bottes (+5 speed) = +30 total
+
+**Puissance escouade (équipe en mission) :**
+
+Puissance_escouade = Σ Puissance_individuelle de tous les PNJ sélectionnés
+
+Exemple :
+- PNJ 1 : 77 (stats) + 30 (équipement) = 107
+- PNJ 2 : 82 (stats) + 45 (équipement) = 127
+- PNJ 3 : 65 (stats) + 20 (équipement) = 85
+- **Puissance escouade** = 107 + 127 + 85 = 319
+
+**Calcul % de succès mission :**
+
+% succès = (Puissance_escouade ÷ Score_mission) × 100
+
+Avec modificateurs :
+- **Kits de survie** : +1% succès par 10 kits utilisés (max +5% = 50 kits)
+- **Relation PNJ** : Si tous les PNJ ont relation > +50 entre eux : +5% bonus
+- **Moral PNJ** : Si tous les PNJ ont moral > 70 : +5% bonus
+- **Bonus recherche** : Certaines recherches donnent +X% succès
+
+**Affichage visuel % succès (Page 9 - Missions Briefing) :**
+
+Gauge circulaire avec couleurs :
+- **< 40% : Rouge** "Très risqué" (icône ⚠️)
+  * Texte : "Cette mission est extrêmement dangereuse !"
+  * Chance échec réelle : ~80%
+  
+- **40-70% : Orange** "Risqué" (icône ⚡)
+  * Texte : "Mission difficile, préparez-vous !"
+  * Chance échec réelle : ~40%
+  
+- **70-90% : Jaune** "Équilibré" (icône ⚖️)
+  * Texte : "Mission faisable avec prudence"
+  * Chance échec réelle : ~15%
+  
+- **> 90% : Vert** "Excellent" (icône ✓)
+  * Texte : "Victoire quasi-assurée !"
+  * Chance échec réelle : ~5% (jamais 100% garanti)
+
+**Bonus caché débutant (Niveaux 1-5 uniquement) :**
+- +20% au % de succès affiché (facilite les premières missions)
+- Exemple : Score requis 15, puissance escouade 12 → Affiché : 80% + 20% = 100%
+  * En réalité : 80% succès, mais confortable pour débuter
+
+**Exemples concrets :**
+
+Mission Niveau 10 (Score 340) :
+- Escouade : 2 PNJ niveau 5, équipement Commun → Puissance 180 chacun = 360 total
+- % succès brut : (360 ÷ 340) × 100 = 105% → Affiché 90-95% (capé à 95%)
+- + Kits 20 : +2% → **Succès affiché : 92-97%** ✓ Vert
+
+Mission Niveau 50 (Score 7800) :
+- Escouade : 5 PNJ niveau 20, équipement Épique → Puissance 1600 chacun = 8000 total
+- % succès brut : (8000 ÷ 7800) × 100 = 102% → Affiché 88-92%
+- + Kits 130 : +5% (max atteint) → **Succès affiché : 93-97%** ✓ Vert
+
+Mission Niveau 100 (Score 56000) :
+- Escouade : 10 PNJ niveau 65, équipement Mythique → Puissance 5500 chacun = 55000 total
+- % succès brut : (55000 ÷ 56000) × 100 = 98% → Affiché 85-90%
+- + Kits 300 : +5% (max) → **Succès affiché : 90-95%** ✓ Vert limite
+
+------------------------------------------- Bâtiments --------------------------------------------------
+
+Chaque bâtiment :
+- Possède une représentation visuelle unique
+- A plusieurs niveaux (1-10) avec évolution visuelle progressive
+- Consomme des ressources en fonction des PNJ assignés
+- Nécessite des ressources pour être construit et amélioré
+- Certains bâtiments nécessitent des recherches pour être débloqués (voir section Recherche)
+- Les niveaux 1-5 sont disponibles de base, les niveaux 6-10 nécessitent des recherches spécifiques
+
+Liste des bâtiments :
+
+BÂTIMENTS DE BASE (Disponibles dès le début) :
+
+1. MAISON (Résidentiel)
+   - Niveau max : 10 (niveaux 6-10 nécessitent recherches)
+   - Capacité : 2 PNJ par niveau (niveau 1 = 2 PNJ, niveau 10 = 20 PNJ)
+   - Consommation par PNJ/jour : 5 Eau, 3 Nourriture, 2 Bois
+   - Effet : Si un PNJ n'est pas assigné à un logement, moral -10%/jour (risque de départ après 7 jours)
+   - Coût construction niveau 1 : 50 Bois, 30 Pierre
+   - Coût amélioration : (Niveau × 40) Bois, (Niveau × 25) Pierre
+
+2. PUITS (Production d'eau)
+   - Niveau max : 10 (niveaux 6-10 nécessitent recherches)
+   - Production/PNJ/heure : 10 Eau (niveau 1) → 50 Eau (niveau 10)
+   - Consommation : Aucune
+   - PNJ requis : 1-3 (selon niveau)
+   - Coût construction : 40 Pierre, 20 Bois
+   - Coût amélioration : (Niveau × 30) Pierre, (Niveau × 15) Bois
+
+3. FERME (Production alimentaire)
+   - Niveau max : 10 (niveaux 6-10 nécessitent recherches)
+   - Production/PNJ/heure : 5 Blé + 3 Viande (niveau 1) → 25 Blé + 15 Viande (niveau 10)
+   - Consommation/PNJ/heure : 8 Eau (niveau 1-5), 12 Eau (niveau 6-10)
+   - PNJ requis : 2-5
+   - Coût construction : 80 Bois, 50 Pierre, 20 Graines
+   - Coût amélioration : (Niveau × 60) Bois, (Niveau × 35) Pierre
+
+4. CUISINE (Transformation alimentaire)
+   - Niveau max : 10 (niveaux 6-10 nécessitent recherches)
+   - Production/PNJ/heure : 8 Nourriture (niveau 1) → 40 Nourriture (niveau 10)
+   - Consommation : 4 Blé OU 3 Viande par Nourriture produite
+   - PNJ requis : 1-4
+   - Coût construction : 60 Bois, 40 Métal, 30 Pierre
+   - Coût amélioration : (Niveau × 45) Bois, (Niveau × 30) Métal
+
+5. CENTRE DE RECHERCHE (Recherche et développement)
+   - Niveau max : 10 (niveaux 6-10 nécessitent recherches)
+   - Production/PNJ/heure : 2 Points de Connaissance (niveau 1) → 15 Points de Connaissance (niveau 10)
+   - Consommation/PNJ/heure : 3 Livres
+   - PNJ requis : 1-3
+   - Note : Bâtiment crucial, à construire en priorité pour débloquer les recherches
+   - Coût construction : 100 Bois, 80 Pierre, 50 Livres
+   - Coût amélioration : (Niveau × 75) Bois, (Niveau × 50) Pierre, (Niveau × 40) Livres
+
+7. ENTREPÔT (Stockage)
+   - Niveau max : 10 (niveaux 6-10 nécessitent recherches)
+   - Capacité de base : 1000 unités par ressource
+   - Augmentation/niveau : +500 unités par ressource
+   - Niveau 10 : 5500 unités par ressource
+   - Consommation : Aucune (mais nécessite 1 PNJ de garde par 2 niveaux)
+   - PNJ requis : 1-5
+   - Coût construction : 120 Bois, 80 Pierre, 40 Métal
+   - Coût amélioration : (Niveau × 90) Bois, (Niveau × 60) Pierre
+
+BÂTIMENTS - INDUSTRIE PRIMAIRE (Recherche "Industrie primaire" requise) :
+
+12. SCIERIE (Production de bois)
+    - Niveau max : 10 (niveaux 6-10 nécessitent recherches supplémentaires)
+    - Production/PNJ/heure : 12 Bois (niveau 1) → 60 Bois (niveau 10)
+    - Consommation : 2 Outils/jour (usure)
+    - PNJ requis : 2-6
+    - Coût construction : 40 Bois, 30 Pierre, 20 Métal
+    - Coût amélioration : (Niveau × 35) Bois, (Niveau × 25) Métal
+
+13. CARRIÈRE (Production de pierre)
+    - Niveau max : 10
+    - Production/PNJ/heure : 10 Pierre (niveau 1) → 50 Pierre (niveau 10)
+    - Consommation : 3 Outils/jour (usure)
+    - PNJ requis : 2-6
+    - Coût construction : 30 Bois, 20 Pierre, 25 Métal
+    - Coût amélioration : (Niveau × 30) Bois, (Niveau × 30) Métal
+
+14. MINE (Production de métal et minerais)
+    - Niveau max : 10
+    - Production/PNJ/heure : 5 Métal + 2 Minerai rare (niveau 1) → 25 Métal + 10 Minerai rare (niveau 10)
+    - Consommation : 4 Outils/jour, 10 Bois (étayage)
+    - PNJ requis : 3-7
+    - Coût construction : 60 Bois, 80 Pierre, 40 Métal
+    - Coût amélioration : (Niveau × 50) Bois, (Niveau × 60) Pierre, (Niveau × 35) Métal
+
+BÂTIMENTS - ARTISANAT AVANCÉ (Recherche "Artisanat avancé" requise) :
+
+10. FORGE (Création d'équipement)
+    - Niveau max : 10
+    - Production : Armes et armures métalliques
+    - Temps de création : 2h (niveau 1) → 30min (niveau 10)
+    - Qualité max : Commun (niveau 1-3), Peu commun (niveau 4-6), Rare (niveau 7-8), Épique (niveau 9-10)
+    - Note : Recherche "Forge améliorée" permet de créer du Légendaire au niveau 9-10
+    - Note : Recherche "Craft Mythique" permet 5% de chance de créer du Mythique
+    - Consommation par équipement : Variable selon type (10-50 Métal, 5-20 Bois, 5-15 Cuir)
+    - PNJ requis : 2-5
+    - Coût construction : 100 Bois, 150 Métal, 80 Pierre
+    - Coût amélioration : (Niveau × 80) Bois, (Niveau × 120) Métal
+
+11. ATELIER DE COUTURE (Création d'équipement textile)
+    - Niveau max : 10
+    - Production : Armures légères, vêtements
+    - Temps de création : 1h30 (niveau 1) → 20min (niveau 10)
+    - Qualité max : similaire à la Forge
+    - Note : Recherche "Maîtrise du tissu" permet de créer du Légendaire
+    - Consommation par équipement : 8-30 Tissu, 3-10 Cuir
+    - PNJ requis : 1-4
+    - Coût construction : 70 Bois, 60 Tissu, 40 Cuir
+    - Coût amélioration : (Niveau × 55) Bois, (Niveau × 45) Tissu
+
+15. TANNERIE (Production de cuir)
+    - Niveau max : 10
+    - Production/PNJ/heure : 4 Cuir (niveau 1) → 20 Cuir (niveau 10)
+    - Consommation : 2 Viande par Cuir produit
+    - PNJ requis : 1-3
+    - Coût construction : 50 Bois, 30 Pierre
+    - Coût amélioration : (Niveau × 40) Bois, (Niveau × 25) Pierre
+
+BÂTIMENTS - PRODUCTION SPÉCIALISÉE (Recherche "Production spécialisée" requise) :
+
+16. ATELIER TEXTILE (Production de tissu)
+    - Niveau max : 10
+    - Production/PNJ/heure : 6 Tissu (niveau 1) → 30 Tissu (niveau 10)
+    - Consommation : 3 Coton OU 2 Lin par Tissu
+    - PNJ requis : 1-4
+    - Coût construction : 60 Bois, 40 Pierre, 20 Tissu
+    - Coût amélioration : (Niveau × 45) Bois, (Niveau × 30) Pierre
+
+17. HERBORISTERIE (Production d'herbes médicinales)
+    - Niveau max : 10
+    - Production/PNJ/heure : 8 Herbe (niveau 1) → 40 Herbe (niveau 10)
+    - Consommation : 6 Eau/heure
+    - PNJ requis : 1-3
+    - Coût construction : 50 Bois, 30 Pierre, 20 Graines
+    - Coût amélioration : (Niveau × 40) Bois, (Niveau × 25) Pierre
+
+19. ATELIER D'OUTILS (Production d'outils)
+    - Niveau max : 10
+    - Production/PNJ/heure : 2 Outils (niveau 1) → 10 Outils (niveau 10)
+    - Consommation : 8 Métal, 4 Bois par Outil
+    - PNJ requis : 1-3
+    - Coût construction : 70 Bois, 100 Métal, 50 Pierre
+    - Coût amélioration : (Niveau × 55) Bois, (Niveau × 75) Métal
+
+BÂTIMENTS - INFRASTRUCTURE AVANCÉE (Recherche "Infrastructure avancée" requise) :
+
+8. HÔPITAL (Production de kits de survie)
+   - Niveau max : 10
+   - Production/PNJ/heure : 1 Kit de survie (niveau 1) → 6 Kits (niveau 10)
+   - Consommation par kit : 5 Tissu, 3 Herbe, 2 Eau
+   - PNJ requis : 1-4
+   - Production journalière max : 144 kits/jour (niveau 10, 4 PNJ, 24h)
+   - Note : Ressource critique pour les missions, prioriser ce bâtiment
+   - Note : Recherche "Kits de survie améliorés" réduit les coûts de -20%
+   - Coût construction : 90 Bois, 60 Pierre, 50 Tissu
+   - Coût amélioration : (Niveau × 70) Bois, (Niveau × 45) Pierre, (Niveau × 30) Tissu
+
+9. MARCHÉ (Vente automatique)
+   - Niveau max : 10
+   - Fonction : Vente automatique des équipements marqués "à vendre"
+   - Capacité : 10 équipements/jour (niveau 1) → 100 équipements/jour (niveau 10)
+   - Prix de vente : 60% de la valeur (niveau 1) → 85% de la valeur (niveau 10)
+   - UI : Intérieur du magasin avec étagères, PNJ clients qui achètent
+   - PNJ requis : 1-3
+   - Consommation/heure : 20 Argent (entretien)
+   - Coût construction : 150 Bois, 100 Pierre, 80 Métal, 200 Argent
+   - Coût amélioration : (Niveau × 100) Bois, (Niveau × 70) Pierre, (Niveau × 300) Argent
+
+18. BIBLIOTHÈQUE (Production de livres)
+    - Niveau max : 10
+    - Production/PNJ/heure : 1 Livre (niveau 1) → 5 Livres (niveau 10)
+    - Consommation : 10 Papier, 2 Encre par Livre
+    - PNJ requis : 1-2
+    - Coût construction : 80 Bois, 50 Pierre, 30 Livres
+    - Coût amélioration : (Niveau × 65) Bois, (Niveau × 40) Pierre
+
+BÂTIMENTS - MILITAIRE (Recherche "Installations militaires" requise) :
+
+20. CASERNE (Entraînement)
+    - Niveau max : 10
+    - Fonction : Améliore l'XP gagnée en mission et stats de combat
+    - Bonus XP : +5% (niveau 1) → +50% (niveau 10)
+    - Bonus stats combat : +2% (niveau 1) → +20% (niveau 10)
+    - Note : Les recherches "Tactiques de combat I/II/III" ajoutent des bonus supplémentaires
+    - PNJ requis : 1-4 (instructeurs)
+    - Consommation : 30 Nourriture/jour, 20 Eau/jour
+    - Coût construction : 120 Bois, 100 Pierre, 80 Métal
+    - Coût amélioration : (Niveau × 90) Bois, (Niveau × 75) Pierre, (Niveau × 60) Métal
+
+BÂTIMENTS - AUTOMATISATION (Recherche "Automatisation" requise) :
+
+6. BUREAU DE GESTION (Automatisation)
+   - Niveau max : 5
+   - Production : Débloque des options d'automatisation avancées
+     * Niveau 1 : Interface de gestion centralisée (vue d'ensemble du village)
+     * Niveau 2 : Alertes et notifications intelligentes (manque de ressources, PNJ sans logement, etc.)
+     * Niveau 3 : Suggestions d'optimisation (bâtiments à améliorer, PNJ à réassigner)
+     * Niveau 4 : Gestion automatique des stocks (vente surplus, achat automatique si besoin)
+     * Niveau 5 : IA complète de gestion du village (combine toutes les automatisations + priorisation intelligente)
+   - Consommation/heure : 50 Argent par niveau
+   - PNJ requis : 1-2
+   - Note : Très utile en fin de partie ou pour le prestige
+   - Note : Nécessite les recherches d'automatisation correspondantes pour fonctionner pleinement
+   - Coût construction : 150 Bois, 100 Pierre, 80 Métal, 500 Argent
+   - Coût amélioration : (Niveau × 120) Bois, (Niveau × 100) Pierre, (Niveau × 500) Argent
+
+BÂTIMENTS - BIEN-ÊTRE ET SOCIAL (Recherche "Infrastructure sociale" requise) :
+
+21. AUBERGE (Bien-être et socialisation)
+    - Niveau max : 10
+    - Fonction : Améliore le moral des PNJ et lieu de socialisation
+    - Bonus moral : +5% (niveau 1) → +25% (niveau 10) pour tous les PNJ du village
+    - Capacité : accueille 5-20 PNJ simultanément (visuel uniquement)
+    - Effet spécial : contexte parfait pour les dialogues IA (ambiance conviviale)
+    - PNJ requis : 1-3 (taverniers/serveurs)
+    - Consommation : 50 Nourriture/jour, 30 Eau/jour, 10 Argent/jour
+    - Production : Génère 20-100 Argent/jour (revenus des clients)
+    - Note : Les PNJ y passent aléatoirement (animation visuelle, pas de simulation)
+    - Coût construction : 100 Bois, 80 Pierre, 60 Métal, 300 Argent
+    - Coût amélioration : (Niveau × 75) Bois, (Niveau × 60) Pierre, (Niveau × 200) Argent
+
+BÂTIMENTS - DÉFENSE (Recherche "Fortifications" requise) :
+
+22. MURAILLES (Défense automatique)
+    - Niveau max : 10
+    - Fonction : Protection automatique du village, génération visuelle automatique
+    - Points de Défense : 100 (niveau 1) → 1000 (niveau 10)
+    - Périmètre : calculé automatiquement autour de tous les bâtiments
+    - Portes automatiques : générées là où les chemins traversent la muraille
+    - Mode édition : murailles invisibles pour permettre la construction
+    - Consommation : (Périmètre ÷ 10) Pierre/jour pour l'entretien
+      * Village compact : ~20 Pierre/jour
+      * Village étendu : ~50 Pierre/jour
+    - Effet : réduit les dégâts des attaques ennemies de 20% (niveau 1) → 60% (niveau 10)
+    - PNJ requis : 1-5 (gardes)
+    - Note : Encourage l'optimisation de l'espace (village compact = moins cher)
+    - Coût construction : 200 Pierre, 100 Métal
+    - Coût amélioration : (Niveau × 150) Pierre, (Niveau × 80) Métal
+
+23. CASERNE D'ESCOUADES (Organisation militaire)
+    - Niveau max : 5
+    - Fonction : Permet de créer et gérer jusqu'à 3 escouades permanentes
+    - Capacité par escouade : 10 PNJ maximum
+    - Fonctionnalités :
+      * Niveau 1 : 1 escouade disponible
+      * Niveau 3 : 2 escouades disponibles
+      * Niveau 5 : 3 escouades disponibles
+    - Auto-équipement intelligent par escouade :
+      * Chaque PNJ peut avoir 1 stat prioritaire (Force, Dextérité, etc.)
+      * Équipement automatique si : Score équipement > équipement actuel ET Stat prioritaire > stat actuelle
+      * Trigger : à chaque ajout d'équipement dans l'inventaire (optimisé par filtre)
+    - Bonus défense : Les PNJ en escouade ajoutent leur score à la défense du village (si non en mission)
+    - Bonus mission : Assignation rapide d'une escouade complète en 1 clic
+    - PNJ requis : 1-2 (instructeurs, hors escouades)
+    - Consommation : 40 Nourriture/jour, 30 Eau/jour
+    - Coût construction : 150 Bois, 120 Pierre, 100 Métal
+    - Coût amélioration : (Niveau × 100) Bois, (Niveau × 80) Pierre, (Niveau × 70) Métal
+
+BÂTIMENTS - ESTHÉTIQUE (Aucune recherche requise) :
+
+24. DÉCORATIONS (Esthétique uniquement)
+    - Types : Statues, Fontaines, Jardins, Bancs, Lampadaires, etc.
+    - Tailles : 1×1 à 3×3 cases
+    - Effet : Bonus moral mineur (+1% à +3% selon type et taille)
+    - Coût : Variable selon type (10-100 ressources variées)
+    - Note : Purement visuel, permet de personnaliser le village
+    - Déblocage : Certaines décorations débloquées par niveau ou achievements
+
+------------------------------------------- Ressources --------------------------------------------------
+
+Système de stockage :
+- Chaque bâtiment possède un stock d'entrée et de sortie pour ses ressources
+- Le bâtiment Entrepôt définit la capacité maximale globale de stockage
+- Capacité de base : 1000 unités par ressource
+- Capacité max (Entrepôt niveau 10) : 5500 unités par ressource
+- Si surplus au-delà de la capacité : destruction progressive (10 unités/heure) jusqu'à retour à la capacité max
+
+Ressources de base (Village - 20 types) :
+1. Eau - Icône : goutte bleue - Poids : 1
+2. Bois - Icône : bûche - Poids : 2
+3. Pierre - Icône : roche grise - Poids : 3
+4. Métal - Icône : lingot - Poids : 4
+5. Nourriture - Icône : pain/viande - Poids : 1
+6. Blé - Icône : épi de blé - Poids : 1
+7. Viande - Icône : cuisse - Poids : 1
+8. Tissu - Icône : rouleau de tissu - Poids : 1
+9. Cuir - Icône : peau - Poids : 2
+10. Herbe (médicinale) - Icône : plante verte - Poids : 1
+11. Livre - Icône : livre ouvert - Poids : 1
+12. Argent - Icône : pièce d'or - Poids : 0
+13. Graines - Icône : sachet - Poids : 1
+14. Outils - Icône : marteau/pioche - Poids : 3
+15. Coton - Icône : boule blanche - Poids : 1
+16. Lin - Icône : tige - Poids : 1
+17. Papier - Icône : feuille - Poids : 0
+18. Encre - Icône : bouteille noire - Poids : 1
+19. Minerai rare - Icône : cristal - Poids : 2
+20. Points de Connaissance - Icône : cerveau/ampoule - Poids : 0
+
+Ressources spéciales (Missions - 10 types) :
+1. Kit de survie - Icône : trousse rouge - Poids : 2 - Requis pour missions
+2. Composant électronique - Icône : circuit - Poids : 1 - Équipement high-tech
+3. Poudre explosive - Icône : baril - Poids : 3 - Armes à feu
+4. Gemme - Icône : diamant - Poids : 1 - Bijoux
+5. Résine - Icône : goutte ambrée - Poids : 1 - Arcs et renforcements
+6. Plaque d'armure - Icône : plaque métallique - Poids : 5 - Armures lourdes
+7. Essence - Icône : bidon - Poids : 2 - Véhicules/générateurs
+8. Munitions - Icône : balle - Poids : 0 - Armes à distance
+9. Pièces mécaniques - Icône : engrenage - Poids : 2 - Objets complexes
+10. Relique ancienne - Icône : artéfact doré - Poids : 1 - Équipement Mythique
+
+Équipement comme ressource :
+- Chaque pièce d'équipement occupe de l'espace dans l'inventaire
+- Capacité max équipement = Capacité stockage ÷ 10 (coefficient de poids moyen)
+- Exemple : Entrepôt niveau 5 → 3000 unités → ~300 équipements maximum
+- Les équipements rares/légendaires/mythiques peuvent compter double
+
+Production en temps réel :
+- Toutes les productions/consommations se font en temps réel (temps serveur)
+- Calcul par seconde pour la précision
+- Un bâtiment est fonctionnel si : Bâtiment actif + PNJ assigné + ressources disponibles
+- Si manque de ressources : production arrêtée, notification au joueur
+------------------------------------------- Recherche --------------------------------------------------
+
+Système de recherche :
+- Arbre de technologies visuel avec icônes et descriptions
+- Chaque recherche débloque des améliorations permanentes
+- Consomme des Points de Connaissance + ressources + temps
+- Nécessite le Centre de Recherche (niveau minimum variable selon la recherche)
+
+Production de Points de Connaissance :
+- Centre de Recherche niveau 1-10 : 2-15 points/heure par PNJ
+- Production max (niveau 10, 3 PNJ) : 45 points/heure = 1080 points/jour
+
+Catégories de recherche :
+
+═══════════════════════════════════════════════════════════════════════════════
+1. BRANCHE : TAILLE D'ÉQUIPE (Critique pour les missions)
+═══════════════════════════════════════════════════════════════════════════════
+
+Niveau 1 : Duo de survie
+- Coût : 100 Points de Connaissance, 50 Argent
+- Temps : 2 heures
+- Prérequis : Centre de Recherche niveau 1
+- Effet : Permet d'envoyer 2 PNJ en mission (au lieu de 1)
+
+Niveau 2 : Escouade tactique
+- Coût : 300 Points de Connaissance, 150 Argent, 50 Livres
+- Temps : 6 heures
+- Prérequis : Duo de survie + Centre de Recherche niveau 2
+- Effet : Permet d'envoyer 3 PNJ en mission
+
+Niveau 3 : Unité spécialisée
+- Coût : 800 Points de Connaissance, 400 Argent, 150 Livres
+- Temps : 12 heures
+- Prérequis : Escouade tactique + Centre de Recherche niveau 4
+- Effet : Permet d'envoyer 4 PNJ en mission
+
+Niveau 4 : Groupe d'élite
+- Coût : 2000 Points de Connaissance, 1000 Argent, 400 Livres
+- Temps : 24 heures
+- Prérequis : Unité spécialisée + Centre de Recherche niveau 6
+- Effet : Permet d'envoyer 5 PNJ en mission
+
+Niveau 5 : Force d'intervention
+- Coût : 4500 Points de Connaissance, 2500 Argent, 800 Livres
+- Temps : 48 heures
+- Prérequis : Groupe d'élite + Centre de Recherche niveau 8
+- Effet : Permet d'envoyer 6-7 PNJ en mission
+
+Niveau 6 : Brigade complète
+- Coût : 8000 Points de Connaissance, 5000 Argent, 1500 Livres
+- Temps : 72 heures
+- Prérequis : Force d'intervention + Centre de Recherche niveau 10
+- Effet : Permet d'envoyer 8-10 PNJ en mission (maximum)
+
+═══════════════════════════════════════════════════════════════════════════════
+2. BRANCHE : DÉBLOCAGE DE BÂTIMENTS
+═══════════════════════════════════════════════════════════════════════════════
+
+Architecture de base (gratuit au départ) :
+- Maison, Puits, Ferme, Cuisine, Entrepôt
+
+Recherche : Industrie primaire
+- Coût : 200 Points de Connaissance, 100 Bois, 100 Pierre
+- Temps : 4 heures
+- Effet : Débloque Scierie, Carrière, Mine
+
+Recherche : Artisanat avancé
+- Coût : 500 Points de Connaissance, 200 Métal, 150 Livres
+- Temps : 8 heures
+- Prérequis : Industrie primaire
+- Effet : Débloque Forge, Atelier de Couture, Tannerie
+
+Recherche : Production spécialisée
+- Coût : 1200 Points de Connaissance, 400 Tissu, 300 Livres
+- Temps : 16 heures
+- Prérequis : Artisanat avancé
+- Effet : Débloque Atelier Textile, Herboristerie, Atelier d'Outils
+
+Recherche : Infrastructure avancée
+- Coût : 2500 Points de Connaissance, 1000 Argent, 500 Livres
+- Temps : 24 heures
+- Prérequis : Production spécialisée
+- Effet : Débloque Hôpital, Marché, Bibliothèque
+
+Recherche : Installations militaires
+- Coût : 4000 Points de Connaissance, 2000 Argent, 800 Métal
+- Temps : 36 heures
+- Prérequis : Infrastructure avancée
+- Effet : Débloque Caserne
+
+Recherche : Automatisation
+- Coût : 6000 Points de Connaissance, 5000 Argent, 1000 Livres
+- Temps : 48 heures
+- Prérequis : Infrastructure avancée + Centre de Recherche niveau 8
+- Effet : Débloque Bureau de Gestion
+
+═══════════════════════════════════════════════════════════════════════════════
+3. BRANCHE : AMÉLIORATION DE BÂTIMENTS
+═══════════════════════════════════════════════════════════════════════════════
+
+Pour chaque type de bâtiment, recherches permettant d'atteindre les niveaux 6-10 :
+
+Recherche : [Nom du bâtiment] Avancé
+- Coût : 1000 Points de Connaissance, ressources variables
+- Temps : 12 heures
+- Effet : Permet de construire le bâtiment jusqu'au niveau 6-7
+
+Recherche : [Nom du bâtiment] Expert
+- Coût : 3000 Points de Connaissance, ressources variables
+- Temps : 24 heures
+- Prérequis : [Nom du bâtiment] Avancé
+- Effet : Permet de construire le bâtiment jusqu'au niveau 8-9
+
+Recherche : [Nom du bâtiment] Master
+- Coût : 6000 Points de Connaissance, ressources variables
+- Temps : 48 heures
+- Prérequis : [Nom du bâtiment] Expert + Centre de Recherche niveau 9
+- Effet : Permet de construire le bâtiment jusqu'au niveau 10
+
+═══════════════════════════════════════════════════════════════════════════════
+4. BRANCHE : EFFICACITÉ DE PRODUCTION
+═══════════════════════════════════════════════════════════════════════════════
+
+Recherche : Optimisation des ressources I
+- Coût : 600 Points de Connaissance, 300 Argent
+- Temps : 8 heures
+- Effet : +10% production pour tous les bâtiments de ressources de base
+
+Recherche : Optimisation des ressources II
+- Coût : 2000 Points de Connaissance, 1000 Argent
+- Temps : 20 heures
+- Prérequis : Optimisation I
+- Effet : +20% production pour tous les bâtiments de ressources de base
+
+Recherche : Optimisation des ressources III
+- Coût : 5000 Points de Connaissance, 3000 Argent
+- Temps : 40 heures
+- Prérequis : Optimisation II + Centre de Recherche niveau 9
+- Effet : +30% production pour tous les bâtiments de ressources de base
+
+Recherche : Réduction de consommation
+- Coût : 3000 Points de Connaissance, 1500 Argent
+- Temps : 24 heures
+- Effet : -15% consommation de ressources pour tous les bâtiments
+
+═══════════════════════════════════════════════════════════════════════════════
+5. BRANCHE : COMBAT ET MISSIONS
+═══════════════════════════════════════════════════════════════════════════════
+
+Recherche : Tactiques de combat I
+- Coût : 800 Points de Connaissance, 400 Argent
+- Temps : 10 heures
+- Effet : +5% stats de combat pour tous les PNJ
+
+Recherche : Tactiques de combat II
+- Coût : 2500 Points de Connaissance, 1200 Argent
+- Temps : 24 heures
+- Prérequis : Tactiques I
+- Effet : +10% stats de combat pour tous les PNJ
+
+Recherche : Tactiques de combat III
+- Coût : 5500 Points de Connaissance, 3000 Argent
+- Temps : 48 heures
+- Prérequis : Tactiques II + Centre de Recherche niveau 10
+- Effet : +15% stats de combat pour tous les PNJ
+
+Recherche : Médecine de terrain
+- Coût : 1500 Points de Connaissance, 500 Herbe, 300 Tissu
+- Temps : 16 heures
+- Effet : Les PNJ blessés récupèrent en 12h au lieu de 24h
+
+Recherche : Kits de survie améliorés
+- Coût : 2000 Points de Connaissance, 1000 Tissu, 500 Herbe
+- Temps : 20 heures
+- Effet : -20% coût en kits de survie pour toutes les missions
+
+═══════════════════════════════════════════════════════════════════════════════
+6. BRANCHE : CRAFT ET ÉQUIPEMENT
+═══════════════════════════════════════════════════════════════════════════════
+
+Recherche : Forge améliorée
+- Coût : 1800 Points de Connaissance, 800 Métal
+- Temps : 18 heures
+- Effet : La Forge peut créer des équipements Légendaires (à partir du niveau 9)
+
+Recherche : Maîtrise du tissu
+- Coût : 1500 Points de Connaissance, 600 Tissu
+- Temps : 16 heures
+- Effet : L'Atelier de Couture peut créer des équipements Légendaires (niveau 9+)
+
+Recherche : Craft Mythique
+- Coût : 8000 Points de Connaissance, 5000 Argent, 2000 Minerai rare
+- Temps : 72 heures
+- Prérequis : Forge améliorée + Maîtrise du tissu + Centre de Recherche niveau 10
+- Effet : Possibilité de crafter des équipements Mythiques (très rare, 5% de chance)
+
+═══════════════════════════════════════════════════════════════════════════════
+7. BRANCHE : AUTOMATISATION ET CONFORT
+═══════════════════════════════════════════════════════════════════════════════
+
+Recherche : Auto-équipement basique
+- Coût : 500 Points de Connaissance, 300 Argent
+- Temps : 8 heures
+- Prérequis : Avoir atteint le niveau 10 de mission
+- Effet : Permet l'équipement automatique des PNJ avec l'équipement optimal disponible (basique)
+
+Recherche : Auto-équipement intelligent
+- Coût : 1500 Points de Connaissance, 800 Argent, 200 Livres
+- Temps : 16 heures
+- Prérequis : Auto-équipement basique + Avoir atteint le niveau 25 de mission
+- Effet : Équipement automatique intelligent (prend en compte le rôle du PNJ : Tank, DPS, Support)
+
+Recherche : Auto-équipement expert
+- Coût : 3500 Points de Connaissance, 2000 Argent, 500 Livres
+- Temps : 24 heures
+- Prérequis : Auto-équipement intelligent + Avoir atteint le niveau 50 de mission
+- Effet : Optimisation parfaite de l'équipement selon les stats et le rôle du PNJ
+
+Recherche : Auto-assignation PNJ basique
+- Coût : 800 Points de Connaissance, 500 Argent
+- Temps : 10 heures
+- Prérequis : Avoir au moins 5 bâtiments construits
+- Effet : Assignation automatique des PNJ aux bâtiments selon leurs compétences (basique)
+
+Recherche : Auto-assignation PNJ optimisée
+- Coût : 2500 Points de Connaissance, 1500 Argent, 300 Livres
+- Temps : 20 heures
+- Prérequis : Auto-assignation basique + Avoir au moins 10 bâtiments
+- Effet : Optimisation intelligente de l'assignation (rotation, efficacité maximale, respect des besoins)
+
+Recherche : Gestion des missions automatiques
+- Coût : 3000 Points de Connaissance, 2000 Argent, 500 Livres
+- Temps : 24 heures
+- Prérequis : Auto-équipement intelligent + Avoir atteint le niveau 30 de mission
+- Effet : Permet le lancement automatique des missions jusqu'au niveau 20 (sécurisé avec équipe adaptée)
+
+Recherche : Gestion des missions avancée
+- Coût : 5500 Points de Connaissance, 4000 Argent, 1000 Livres
+- Temps : 36 heures
+- Prérequis : Gestion des missions automatiques + Avoir atteint le niveau 60 de mission
+- Effet : Lancement automatique des missions jusqu'au niveau 50 avec optimisation des équipes
+
+Note : Le Bureau de Gestion niveau 5 combine toutes ces automatisations et ajoute une IA complète
+de gestion du village (production, distribution des ressources, priorisation des constructions)
+
+═══════════════════════════════════════════════════════════════════════════════
+IMPACT SUR LA PROGRESSION
+═══════════════════════════════════════════════════════════════════════════════
+
+Sans recherche "Taille d'équipe" :
+- Le joueur ne peut envoyer qu'1 PNJ en mission
+- Missions niveau 1-3 faisables
+- Missions niveau 4+ très difficiles voire impossibles
+
+Progression recommandée :
+- Jour 1-3 : Rechercher "Duo de survie" (permet d'avancer jusqu'au niveau 5-10)
+- Jour 5-7 : Rechercher "Escouade tactique" (niveau 15-20 accessible)
+- Jour 10-15 : Rechercher "Unité spécialisée" (niveau 25-35)
+- Jour 20-30 : Rechercher "Groupe d'élite" (niveau 40-60)
+- Cycle 1 complet : Débloquer "Brigade complète" pour le niveau 100
+
+Temps total pour débloquer 10 PNJ en mission :
+- ~15 000 Points de Connaissance
+- ~9000 Argent
+- ~2850 Livres
+- ~170 heures de recherche (7 jours de jeu actif)
+
+------------------------------------------- XP & niveau --------------------------------------------------
+
+Système de niveau (1 à 100) :
+- Progression XP exponentielle : XP requise = 100 × (Niveau²)
+  * Niveau 1→2 : 100 XP
+  * Niveau 10→11 : 10 000 XP
+  * Niveau 50→51 : 250 000 XP
+  * Niveau 99→100 : 980 100 XP
+
+Sources d'XP pour les PNJ :
+- Travail dans un bâtiment : 10 XP/heure (bonus Caserne applicable)
+- Mission réussie : Score de la mission × 10 XP
+  * Mission niveau 10 (score 50) = 500 XP
+  * Mission niveau 50 (score 480) = 4800 XP
+  * Mission niveau 100 (score 1500) = 15 000 XP
+- Combat : 50 XP par ennemi vaincu + bonus selon difficulté
+
+Points de stats par niveau :
+- 5 points libres à distribuer manuellement (ou auto si option activée)
+- 3 points automatiques liés aux tâches effectuées :
+  * Travail en Forge/Mine/Carrière → +1 Force
+  * Travail en Ferme/Scierie → +1 Endurance
+  * Travail en Atelier/Couture → +1 Dextérité
+  * Travail en Bibliothèque/Recherche → +1 Intelligence
+  * Mission → points répartis selon l'équipement utilisé
+
+Stats disponibles :
+- Force : dégâts mêlée, port de charge
+- Dextérité : dégâts distance, esquive, précision
+- Endurance : PV, résistance, régénération
+- Vitesse : initiative, vitesse d'attaque, esquive
+- Intelligence : compétences spéciales, efficacité production
+- Chance : critique, butin, qualité de craft
+
+New Game+ (Prestige) :
+- Débloqué au niveau 100
+- Permet de recommencer avec bonus cumulatifs
+- Maximum : 10 cycles de prestige (niveau effectif max : 1000)
+
+Avantages du prestige par cycle :
+- Cycle 1 (niveau 1-100) : jeu de base
+- Cycle 2 (101-200) : 
+  * Garder 5 PNJ + leur équipement
+  * +15% drop équipement rare/épique
+  * +10% XP global
+  * Ressources de départ : 500 de chaque ressource de base
+  * Déblocage : 1 bâtiment spécial "Atelier Prestige" (boost production +25%)
+  * Réduction -20% des coûts de recherche
+- Cycle 3 (201-300) :
+  * +20% drop équipement
+  * +15% XP global
+  * +1 slot de bijou pour tous les PNJ
+  * Réduction -30% des coûts de recherche
+  * Déblocage : Accès aux équipements "Prestige" (nouveaux modèles visuels)
+- Cycle 4 (301-400) :
+  * +25% drop
+  * +20% XP
+  * Réduction -40% des coûts de recherche
+  * +1 slot d'arme supplémentaire (tous les PNJ peuvent équiper 2 armes)
+  * Bâtiment spécial "Monument du Prestige" (+50% moral permanent)
+- Cycle 5 (401-500) :
+  * +30% drop
+  * +25% XP
+  * Réduction -50% des coûts de recherche
+  * Déblocage : Missions "Prestige" (récompenses uniques, difficulté extrême)
+  * +2 PNJ maximum en mission (peut envoyer 12 PNJ si recherches complètes)
+- Cycle 6-9 : progression continue des bonus (+5% drop et +5% XP par cycle)
+- Cycle 10 (901-1000) :
+  * +60% drop équipement Mythique
+  * +50% XP
+  * Réduction -70% des coûts de recherche
+  * Tous les bâtiments spéciaux débloqués
+  * Titre spécial "Légende du Wasteland"
+  * Accès à la difficulté ultime : Mission niveau 1000
+
+Durée estimée par cycle :
+- Cycle 1 : ~30 jours (jeu actif moyen 2h/jour)
+- Cycle 2 : ~34,5 jours (+15% du cycle précédent)
+- Cycle 3 : ~39,7 jours
+- Cycle 10 : ~88 jours
+- Total pour atteindre niveau 1000 : ~550 jours de jeu
+
+Équipement et puissance :
+- Chaque équipement possède un score de puissance (1-99)
+- Ce score détermine les points de stats générés aléatoirement
+- La rareté applique un multiplicateur (voir section Équipement)
+- Score total PNJ = Niveau + Score équipement total × multiplicateur rareté
+
+------------------------------------------- IA --------------------------------------------------
+
+Système d'IA pour les dialogues et comportements :
+- Inspiré du projet IAWorld (sans lien direct, juste inspiration conceptuelle)
+- Chaque PNJ possède une personnalité unique et évolutive
+- Système de mémoire contextuelle pour des dialogues cohérents
+
+Fonctionnalités IA :
+1. Dialogue dynamique avec les PNJ
+   - Système de chat en temps réel
+   - Prompts adaptatifs basés sur la personnalité, l'historique et le contexte
+   - Mémoire des conversations précédentes (dernières 50 interactions)
+   - Réponses influencées par : moral, relation avec le joueur, événements récents
+
+2. Système de relations
+   - Chaque PNJ a un niveau de relation avec le joueur (-100 à +100)
+   - Chaque PNJ a des relations avec les autres PNJ (-100 à +100)
+   - Impact sur la production : relation élevée = +10% à +30% de productivité
+   - Risque de départ : relation < -50 pendant 7 jours → le PNJ quitte le village
+   
+3. Influences et rumeurs
+   - Le joueur peut demander à un PNJ d'influencer les opinions
+   - Le PNJ accepte selon sa relation avec le joueur
+   - Propagation de rumeurs dans le chat village (1-3 messages/jour)
+   - Impact sur les relations entre PNJ : -5 à -15 par rumeur
+
+4. IA Background (analyse et actions automatiques)
+   - Analyse périodique du contexte du village (toutes les 6 heures)
+   - Génération d'événements aléatoires basés sur le contexte :
+     * Disputes entre PNJ (si relations < -20)
+     * Amitiés qui se forment (si travail ensemble > 48h)
+     * Demandes spéciales des PNJ
+     * **Mariages** (si conditions remplies, voir section PNJ)
+     * **Sabotages** (si moral PNJ < -30 et relation joueur < -40, 5% de chance/semaine)
+     * **Accidents de travail** (si manque de ressources ou PNJ fatigué, 2% de chance/jour)
+   - Sabotage : désactive temporairement un bâtiment (6-24h), perte de 10-30% des ressources
+   - Accident : PNJ blessé (malus -20% stats pendant 12h), production arrêtée pendant 2h
+   
+   **ÉVÉNEMENTS VILLAGE PROCÉDURAUX (Nouveau système complet) :**
+   
+   Check automatique toutes les 6h réelles (04h00, 10h00, 16h00, 22h00)
+   
+   **ÉVÉNEMENTS POSITIFS** (déclenchés si moral général > +50 ET ressources stables) :
+   
+   1. **Fête villageoise** (10% chance/semaine si moral > +60)
+      - Effet : +10 moral tous les PNJ (permanent)
+      - Coût : -50 Nourriture, -20 Eau
+      - Narration IA : Génère description de la fête (musique, danses, ambiance)
+      - Message chat : "Le village organise une fête ! L'ambiance est joyeuse !"
+      - Durée : 24h (boost production +5% pendant la fête)
+   
+   2. **Découverte** (5% chance/semaine si exploration > 3 missions/semaine)
+      - Effet : +100 ressource aléatoire (Bois, Pierre, Métal, Tissu, etc.)
+      - Narration IA : Génère histoire de la découverte (ruines, cache, épave)
+      - Message chat : "[PNJ] a découvert un stock de ressources abandonné !"
+   
+   3. **Naissance** (si couple marié existe, 15% chance/mois par couple)
+      - Effet : Nouveau PNJ enfant (niveau 1, croissance 1 niveau/mois jusqu'à 5)
+      - Narration IA : Génère annonce de naissance avec nom et traits des parents
+      - Message chat : "[Parent1] et [Parent2] ont accueilli un enfant : [Nom] !"
+      - Parents : +20 moral, +10 relation mutuelle
+   
+   4. **Inspiration** (3% chance/semaine si Bibliothèque existe)
+      - Effet : +50 Points de Connaissance
+      - Narration IA : Un PNJ chercheur a une intuition brillante
+      - Message chat : "[PNJ] a fait une découverte qui accélère la recherche !"
+   
+   **ÉVÉNEMENTS NÉGATIFS** (déclenchés si moral < -20 OU ressources critiques < 20%) :
+   
+   1. **Accident de travail** (2% chance/jour si Nourriture < 30% OU PNJ fatigué > 80%)
+      - Effet : 1 PNJ blessé aléatoire (PV -20%, malus -20% stats, durée 12h)
+      - Production arrêtée : 2h dans le bâtiment de l'accident
+      - Narration IA : Génère description de l'accident (chute, brûlure, outil cassé)
+      - Message chat : "ACCIDENT ! [PNJ] s'est blessé dans [Bâtiment] !"
+      - Moral général : -5
+   
+   2. **Vol interne** (3% chance/semaine si moral < -30 ET Argent > 1000)
+      - Effet : -10% Argent + ressource aléatoire
+      - Coupable : PNJ avec moral le plus bas (relation joueur < -20)
+      - Narration IA : Génère rumeur dans le village, accusations
+      - Message chat : "Des ressources ont disparu ! Les villageo is sont méfiants..."
+      - Moral général : -5
+      - Relation joueur → coupable : -10
+   
+   3. **Maladie** (10% chance/jour si Nourriture < 20% ET pas d'Hôpital)
+      - Effet : -30% production village pendant 24h (tous les PNJ fatigués)
+      - PNJ malades : 20-40% du village
+      - Narration IA : Génère description de l'épidémie (fièvre, fatigue, symptômes)
+      - Message chat : "Une maladie se propage ! Le village tourne au ralenti..."
+      - Moral général : -15
+      - Guérison : Automatique après 24h OU si Hôpital construit (guérison en 6h)
+   
+   4. **Départ volontaire** (5% chance/semaine par PNJ si moral < -50 ET relation joueur < -60)
+      - Effet : PNJ quitte définitivement le village
+      - Narration IA : Génère lettre d'adieu ou fuite nocturne
+      - Message chat : "[PNJ] a quitté le village... Le moral est au plus bas."
+      - Moral général : -10
+      - Récupération : 50% des ressources que le PNJ possédait
+   
+   **ÉVÉNEMENTS SPÉCIAUX** (rares, déclenchés par conditions spécifiques) :
+   
+   1. **Visite marchand** (5% chance/semaine, niveau village > 10)
+      - Effet : Modal "Marchand ambulant" avec échange de ressources
+      - Ratio : 1:1.2 (favorable au joueur) pour toutes les ressources
+      - Disponible : 24h, puis le marchand repart
+      - Narration IA : Génère description du marchand (origine, marchandises)
+      - Message chat : "Un marchand ambulant arrive au village !"
+   
+   2. **Attaque animale** (3% chance/semaine si Murailles niveau < 3 ET villages > 5 bâtiments)
+      - Effet : Combat défensif automatique
+      - Ennemis : 3-8 animaux (loups, ours, créatures mutantes)
+      - Défenseurs : Tous les PNJ disponibles (pas en mission) + escouades
+      - Victoire : Butin (+50 Viande, +20 Cuir)
+      - Défaite : -10% ressources stockées, 1-3 PNJ blessés
+      - Narration IA : Génère récit du combat
+      - Message chat : "ALERTE ! Des créatures attaquent le village !"
+   
+   3. **Aurore boréale** (1% chance/mois, purement narratif)
+      - Effet : +5 moral tous les PNJ (beauté du spectacle)
+      - Narration IA : Génère description poétique de l'aurore
+      - Message chat : "Une magnifique aurore illumine le ciel nocturne..."
+   
+   **STOCKAGE ET AFFICHAGE :**
+   
+   - Table DB `village_events` : id, village_id, type, timestamp, narration, effects_json, viewed
+   - Historique visible : Page Progression → Onglet "Événements" (liste des 50 derniers)
+   - Notification : Badge rouge sur icône village (bottom nav) si événement non vu
+   - Modal événement : Affiche narration IA + effets détaillés + bouton "J'ai compris"
+   
+   **NARRATION IA (Pour chaque événement) :**
+   
+   Prompt contextualisé :
+   ```
+   Type événement : {type}
+   État village : {moral moyen}, {ressources critiques}, {nb PNJ}
+   PNJ impliqués : {liste avec personnalités et traits}
+   Contexte récent : {derniers événements}
+   
+   Génère une narration immersive et cohérente (3-5 phrases, style post-apocalyptique).
+   ```
+   
+   Format de réponse parsable pour modifier la DB :
+     ```json
+     {
+       "type": "relation_change",
+       "pnj_source": "id_pnj_1",
+       "pnj_target": "id_pnj_2",
+       "delta": -10,
+       "reason": "Dispute sur la répartition des ressources"
+     }
+     ```
+     ```json
+     {
+       "type": "sabotage",
+       "pnj_source": "id_pnj_saboteur",
+       "building_id": "id_batiment",
+       "duration_hours": 12,
+       "reason": "Révolte contre les conditions de travail"
+     }
+     ```
+
+5. Détection des besoins
+   - Questions au joueur sur l'état du village
+   - Demandes personnelles (meilleur logement, équipement, repos)
+   - Plaintes sur d'autres PNJ
+   - Suggestions d'amélioration
+
+6. Personnalité et traits
+   - Traits prédéfinis : Travailleur, Paresseux, Sociable, Solitaire, Optimiste, Pessimiste, etc.
+   - Mélange aléatoire pour PNJ IA (2-4 traits par PNJ)
+   - Influence sur les dialogues, la productivité et les relations
+   - Exemples d'impact :
+     * Travailleur : +10% production, -5% consommation nourriture
+     * Paresseux : -15% production, +5% consommation nourriture
+     * Sociable : +20% vitesse de création de relations
+     * Solitaire : -10% productivité si >3 PNJ dans le même bâtiment
+
+Format d'implémentation IA :
+- Solution recommandée : Ollama en local (déjà disponible sur la machine)
+  * Modèle suggéré : qwen2.5:14b (9GB) - DISPONIBLE ✓
+  * Alternative légère : llama3.2 (2GB) - DISPONIBLE ✓
+  * Modèle premium : qwen2.5:32b (19GB) - DISPONIBLE ✓
+- Configuration :
+  * Endpoint API : http://localhost:11434/api/generate (Ollama par défaut)
+  * Timeout : 30 secondes pour génération de réponse
+  * Temperature : 0.7-0.9 pour dialogues naturels et variés
+  * Context window : 4096 tokens minimum (historique de conversation)
+- Architecture :
+  * Base de prompts modulaires par situation (salutation, demande, plainte, rumeur, etc.)
+  * Système de templates avec variables (nom PNJ, traits, relations, contexte village)
+  * Cache des réponses fréquentes (Redis ou fichier local) pour optimiser les performances
+  * Queue de requêtes pour éviter la surcharge (max 3 requêtes simultanées)
+- Fallback et résilience :
+  * Si Ollama indisponible : réponses prédéfinies contextuelles (50+ templates par situation)
+  * Si timeout : réponse courte générique + retry en arrière-plan
+  * Logs des erreurs pour debugging
+- Optimisations :
+  * Pre-génération des personnalités au recrutement du PNJ (bio, traits, style de parole)
+  * Compression de l'historique après 50 interactions (résumé automatique)
+  * Génération batch pour les dialogues NPC-NPC du chat village (toutes les 6h)
+------------------------------------------- Chat --------------------------------------------------
+Point innovant : système de dialogue avec tous les PNJ du village.
+Inspiration : projet IAWorld (dans un autre dossier, sans lien ni modification de ce projet).
+
+Fonctionnalités :
+1. Discussion avec les PNJ
+   - Interface de chat individuel avec chaque PNJ
+   - Découvrir leurs besoins, leur moral, leurs opinions
+   - Connaître l'état général du village
+   - Améliorer les relations
+
+2. Contexte et rôle du joueur
+   - Le joueur est le leader du village
+   - Les PNJ s'adressent au joueur en tant que chef
+   - Respect et influence basés sur la relation
+
+3. Mémoire et évolution
+   - Système de mémoire persistante (voir section IA)
+   - Les PNJ se souviennent des conversations
+   - Évolution des personnalités selon les interactions
+   - Prompts dynamiques adaptés au contexte
+
+4. Impact des relations
+   - Bonne relation (>50) :
+     * +15% à +30% de production
+     * -50% de risque de départ
+     * Accepte plus facilement les demandes
+   - Relation neutre (0 à 50) :
+     * Production normale
+     * Comportement standard
+   - Mauvaise relation (<0) :
+     * -10% à -25% de production
+     * +100% de risque de départ
+     * Refuse les demandes
+
+5. Influence sociale
+   - Demander à un PNJ d'influencer les autres
+   - Condition : relation avec ce PNJ > 30
+   - Actions possibles :
+     * Répandre des rumeurs négatives (dégrade relation cible -5 à -15)
+     * Promouvoir quelqu'un (améliore relation cible +3 à +10)
+     * Médiation (résoudre un conflit entre 2 PNJ)
+   - Visible dans le chat village (messages aléatoires)
+
+6. Chat village global
+   - Affichage des conversations entre PNJ (simulées)
+   - Rumeurs et potins
+   - Annonces d'événements
+   - Ambiance du village
+
+7. Conséquences extrêmes
+   - Si un PNJ a des relations < -30 avec la majorité du village :
+     * Isolement progressif
+     * Moral en chute (-10%/jour)
+     * Risque de départ après 14 jours
+   - L'IA background gère ces dynamiques automatiquement
+
+Implémentation technique :
+- Système de prompts modulaires (personnalité + contexte + mémoire)
+- Parser les réponses IA pour détecter les actions à effectuer en DB
+- Format structuré type JSON pour les modifications
+- Interface utilisateur : fenêtre de chat moderne, historique scrollable
+
+
+------------------------------------------- Évolution du monde --------------------------------------------------
+
+Système de villages IA (déblocage progressif) :
+
+PRÉREQUIS :
+- Village joueur niveau minimum : 10 (création du premier village IA)
+- Maximum de villages IA simultanés : 4 (limitation pour optimiser les performances)
+
+CRÉATION DES VILLAGES IA :
+- Village IA 1 : Apparaît automatiquement entre niveau 10 et 20 du joueur (aléatoire)
+- Village IA 2 : Apparaît entre niveau 25 et 35
+- Village IA 3 : Apparaît entre niveau 40 et 50
+- Village IA 4 : Apparaît entre niveau 55 et 65 (ou remplace un village détruit)
+
+SYSTÈME DE PROGRESSION SIMPLIFIÉ :
+Au lieu de simuler un village complet (trop coûteux en calculs), les villages IA utilisent un système abstrait :
+- Score global de village : calculé en fonction du niveau joueur ± variation aléatoire
+- Formule : Score Village IA = (Niveau Joueur × Multiplicateur) ± Variation
+  * Multiplicateur : 0.70 à 1.20 (donne l'impression de compétition)
+  * Variation : ±15% aléatoire (crée de la diversité)
+- Le score détermine automatiquement :
+  * Niveau moyen des PNJ du village (Score ÷ 10)
+  * Qualité de l'équipement disponible
+  * Quantité de ressources approximative (pour les échanges)
+  * Nombre de bâtiments visuels (esthétique uniquement)
+
+EXEMPLE DE PROGRESSION :
+- Joueur niveau 30 → Village IA 1 : score ~25 (80%), Village IA 2 : score ~36 (120%)
+- Un village peut temporairement dépasser le joueur pour créer un défi
+- Rééquilibrage automatique tous les 10 niveaux du joueur
+
+SYSTÈME DE RELATIONS (-100 à +100) :
+1. Allié (+50 à +100) :
+   - Bonus ventes Marché : +20% à +40% de capacité
+   - Échanges automatiques disponibles (si ressource < 20% chez joueur ET > 60% chez allié)
+   - Possibilité d'échanger des PNJ (coût : 1000 Argent par PNJ, niveau ±5 du village)
+   - Missions d'entraide : +15% récompenses, +10 relation si réussite
+   - Protection mutuelle : si attaqué par un 3e village, l'allié peut intervenir (20% de chance)
+
+2. Neutre (-49 à +49) :
+   - Échanges commerciaux basiques disponibles (prix standard)
+   - Pas de bonus ni malus particulier
+   - Missions neutres disponibles (récompenses normales)
+
+3. Ennemi (-100 à -50) :
+   - Attaques du village ennemi : 1 attaque tous les 7-14 jours (aléatoire)
+   - Défense obligatoire : combat PNJ défenseurs VS attaquants
+   - Si défense réussie : butin (équipement, ressources), +2% XP combat aux défenseurs
+   - Si défense ratée : perte de 10-30% des ressources, -5% moral pendant 48h
+   - Possibilité de missions de pillage contre ce village : +30% ressources, -20 relation
+   - Raids donnent +1% XP combat permanent aux PNJ participants (max +10% cumulable)
+
+ACTIONS DISPONIBLES AVEC LES VILLAGES :
+
+1. Espionnage (coût : 500 Argent, durée : 2h)
+   - Révèle le score approximatif du village
+   - Révèle les ressources disponibles (±20% de précision)
+   - Révèle le niveau de relation avec les autres villages
+   - Disponible si relation > -80
+
+2. Échanges commerciaux
+   - Interface : sélection de ressources à échanger (ratio basé sur rareté)
+   - Ratio favorable si allié : 1:1.2 (le joueur reçoit +20%)
+   - Ratio neutre : 1:1
+   - Ratio défavorable si ennemi : 1:0.7 (le joueur perd -30%)
+   - Limite : 1 échange par village par jour
+
+3. Échange de PNJ (uniquement alliés +60 ou plus)
+   - Le village propose 1-3 PNJ aléatoires par semaine
+   - Niveau PNJ : (Score Village ÷ 10) ± 3 niveaux
+   - Coût : 1000 Argent + 500 ressources variées
+   - Le joueur peut aussi envoyer un de ses PNJ (gain : 1500 Argent + améliore relation de +5)
+
+4. Missions spéciales
+   - Aide au village (+10 relation, récompenses bonus)
+   - Pillage du village (-30 relation, ressources × 1.5, risque de devenir ennemi)
+   - Médiation entre 2 villages (coût : 2000 Argent, +15 relation avec les 2 si réussite)
+
+5. Pacte de non-agression (relation neutre requise)
+   - Coût : 3000 Argent
+   - Durée : 30 jours
+   - Effet : Garantit qu'aucun des deux ne deviendra ennemi pendant la durée
+   - Permet d'éviter les attaques pendant qu'on se concentre sur la progression
+
+AFFICHAGE VISUEL DES VILLAGES IA :
+
+Vue village IA (accessible via carte du monde) :
+- Grille 10×10 (comme le village joueur mais simplifiée)
+- Affichage de 5-15 bâtiments selon le score du village
+- Types de bâtiments visibles (génération procédurale selon score) :
+  * Toujours présents : Maison (×2-4), Entrepôt, Centre du village
+  * Si score > 20 : Forge, Ferme, Puits
+  * Si score > 40 : Marché, Caserne, Mine
+  * Si score > 60 : Bâtiments avancés aléatoires
+- Routes automatiques entre bâtiments (génération par algorithme de chemin minimum)
+- PNJ animés (5-10 sprites) qui se déplacent entre domicile et travail
+  * Déplacement purement visuel (pas de simulation réelle)
+  * Vitesse : 1 case/seconde
+  * Chemins précalculés pour optimiser les performances
+- Vue limitée si relation < 0 (brouillard de guerre sur 50% du village)
+- Vue complète si relation > 50
+
+ÉVÉNEMENTS ALÉATOIRES :
+
+1. Destruction de village (niveau joueur 60-70) :
+   - Probabilité : 30% qu'un village soit détruit par des créatures
+   - Le village disparaît définitivement
+   - Tous les échanges/relations associés sont annulés
+   - Un nouveau village peut apparaître 10 niveaux plus tard
+   - Event narratif généré par IA (histoire de la destruction)
+
+2. Guerre entre villages IA (niveau 50+) :
+   - Deux villages IA peuvent entrer en conflit (10% de chance tous les 20 jours)
+   - Le joueur peut choisir un camp (impact sur relations)
+   - Aider un village : +30 relation avec lui, -20 avec l'autre
+   - Rester neutre : pas de changement
+   - Récompenses si victoire du camp soutenu : ressources × 2
+
+3. Caravane de réfugiés (niveau 30+) :
+   - Un village IA envoie des réfugiés vers le joueur (aléatoire)
+   - Accepter : +2-5 PNJ niveau moyen, +10 relation, coût 500 ressources/PNJ
+   - Refuser : -15 relation mais pas de coût
+
+4. Proposition d'alliance (niveau 40+) :
+   - Un village neutre (+10 à +40) propose une alliance
+   - Accepter : relation passe à +60, échange de cadeaux (500 ressources mutuelles)
+   - Refuser : -10 relation
+
+OPTIMISATIONS TECHNIQUES :
+
+Pour éviter la surcharge :
+- Pas de simulation en temps réel des villages IA (calculs statiques basés sur formules)
+- Mise à jour des villages IA : 1 fois toutes les 6 heures (quand le joueur se connecte)
+- Stockage DB minimal par village :
+  * id, nom, score, relation_joueur, derniere_maj, ressources_json (approximatif)
+  * ~50 octets par village × 4 = 200 octets total
+- Animation PNJ villages IA : sprites réutilisés, chemins précalculés en cache
+- Génération procédurale des bâtiments (seed basé sur l'ID du village, toujours identique)
+
+INTERFACE CARTE DU MONDE :
+
+- Vue globale avec 5 emplacements (1 joueur + 4 IA max)
+- Icônes colorées selon relation :
+  * Vert : Allié
+  * Bleu : Neutre
+  * Rouge : Ennemi
+  * Gris : Détruit
+- Clic sur un village → affichage des options (espionner, échanger, attaquer, etc.)
+- Indicateur de score relatif : barre de progression comparée au joueur
+- Notifications : attaques imminentes, propositions d'échange, événements
+------------------------------------------- Description de l'UI --------------------------------------------------
+
+PHILOSOPHIE UI/UX :
+- **Mobile-First** : optimisé pour téléphones (résolution 360×640 minimum)
+- **Responsive** : adaptation automatique PC pour les tests
+- **Public cible** : Gamers adultes 30± ans (contenu mature accepté et recommandé)
+- **Style visuel** : Post-apocalyptique Fallout + gestion Clash of Clans
+- **Navigation** : Bottom navigation bar fixe (5 icônes principales)
+- **Accessibilité** : icônes claires, textes lisibles, feedback visuel immédiat
+
+════════════════════════════════════════════════════════════════════════════════
+1) PAGE D'ACCUEIL (Non authentifié)
+════════════════════════════════════════════════════════════════════════════════
+
+Contenu :
+- Logo "Loots&Live" en grand (style Fallout rétro-futuriste)
+- Tagline : "Survivez, Construisez, Dominez le Wasteland"
+- Description courte de l'application (3-4 lignes)
+- Bouton principal : "SE CONNECTER"
+- Bouton secondaire : "CRÉER UN COMPTE"
+- Footer : Version, crédits, liens externes
+
+Ambiance :
+- Background animé (particules de poussière, couleurs sépia/vert)
+- Musique d'ambiance (optionnelle, réglable)
+
+════════════════════════════════════════════════════════════════════════════════
+2) PAGE DE CONNEXION
+════════════════════════════════════════════════════════════════════════════════
+
+Formulaire :
+- Champ : Pseudo (texte, requis)
+- Champ : Mot de passe (password, requis)
+- Checkbox : "Se souvenir de moi" (local storage, 30 jours)
+- Bouton : "CONNEXION"
+- Lien : "Mot de passe oublié ?" (optionnel, fonctionnalité future)
+- Lien retour : "← Retour à l'accueil"
+
+Sécurité :
+- Hash bcrypt côté serveur
+- Rate limiting : 5 tentatives/10 minutes par IP
+- Session token JWT (expiration 24h, renouvelable)
+- HTTPS recommandé si ouverture port externe
+
+════════════════════════════════════════════════════════════════════════════════
+3) PAGE D'INSCRIPTION
+════════════════════════════════════════════════════════════════════════════════
+
+Formulaire :
+- Champ : Pseudo (3-20 caractères, unique, requis)
+- Champ : Mot de passe (8+ caractères, requis)
+- Champ : Confirmation mot de passe (requis)
+- Champ : Email (optionnel, format validé)
+- Checkbox : "J'accepte les CGU" (requis)
+- Checkbox : "J'ai 18 ans ou plus" (requis, contenu mature)
+- Bouton : "CRÉER MON COMPTE"
+- Lien retour : "← Déjà un compte ? Connexion"
+
+Validation :
+- Vérification unicité pseudo en temps réel (AJAX)
+- Force du mot de passe (indicateur visuel : faible/moyen/fort)
+- Messages d'erreur clairs sous chaque champ
+
+════════════════════════════════════════════════════════════════════════════════
+4) PAGE DE CRÉATION DE PERSONNAGE (Obligatoire après inscription)
+════════════════════════════════════════════════════════════════════════════════
+
+Flow :
+- Si compte possède déjà un PNJ joueur → Redirection automatique page Village
+- Sinon → Création de personnage obligatoire
+
+Section 1 : APPARENCE (gauche de l'écran, 40%)
+- Prévisualisation 3D/2D du PNJ (vue de face, corps entier, sans équipement)
+- Customisation :
+  * Sexe : Homme / Femme / Non-binaire (boutons radio)
+  * Coiffure : 10-15 styles (carousel avec miniatures)
+  * Couleur cheveux : 12 couleurs (palette)
+  * Forme des yeux : 8 types (carousel)
+  * Couleur yeux : 12 couleurs
+  * Nez : 6 types
+  * Bouche : 6 types
+  * Taille du corps : Petit / Moyen / Grand (slider ou boutons)
+  * Couleur peau : 8 teintes (palette)
+- Bouton : "Randomiser l'apparence" (génération aléatoire)
+
+Section 2 : IDENTITÉ ET CLASSE (droite de l'écran, 60%)
+- Champ : Nom du personnage (3-20 caractères, requis)
+- Champ : Biographie (0-500 caractères, optionnel, utilisé par IA pour personnalité)
+
+- Sélection de classe (affiche description + répartition stats) :
+  * **Guerrier** : "Maître du combat rapproché"
+    - Force +3, Endurance +2, Vitesse +1
+    - Bonus : +10% dégâts mêlée permanents
+    
+  * **Éclaireur** : "Rapide et précis"
+    - Dextérité +3, Vitesse +2, Chance +1
+    - Bonus : +10% dégâts distance permanents
+    
+  * **Artisan** : "Créateur et innovateur"
+    - Intelligence +3, Dextérité +2, Force +1
+    - Bonus : -10% coût craft permanents
+    
+  * **Leader** : "Chef charismatique"
+    - Intelligence +2, Endurance +2, Chance +2
+    - Bonus : +5% production globale village
+    
+  * **Survivant** : "Polyvalent et équilibré"
+    - Tous les stats +1
+    - Bonus : +5% XP gagnée permanents
+
+- Répartition de 10 points libres :
+  * 6 stats disponibles : Force, Dextérité, Endurance, Vitesse, Intelligence, Chance
+  * Interface : +/- pour chaque stat, compteur "Points restants : X/10"
+  * Limites : min 0, max 5 par stat (évite le min-max excessif)
+
+- Résumé final des stats (niveau 1) :
+  * Affichage visuel type jauge pour chaque stat
+  * Total : 16 points (6 de classe + 10 libres)
+
+Boutons d'action :
+- "← Retour" (retour à l'apparence)
+- "VALIDER ET ENTRER DANS LE WASTELAND" (lance cinématique d'arrivée)
+
+Cinématique d'arrivée (optionnelle, skippable) :
+- Texte narratif généré par IA basé sur classe + bio
+- Animation : personnage arrivant dans le village vide (2-3 bâtiments de base)
+- Fondu vers la page Village
+
+════════════════════════════════════════════════════════════════════════════════
+5) PAGE VILLAGE (Hub principal de l'application)
+════════════════════════════════════════════════════════════════════════════════
+
+Layout général (3 zones principales) :
+
+┌─────────────────────────────────────────────────────────┐
+│  [BARRE DE RESSOURCES EXTENSIBLE]                       │ ← Zone 1
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│                                                         │
+│         [VUE VILLAGE - ISOMÉTRIQUE]                     │ ← Zone 2
+│                                                         │
+│                                                         │
+├─────────────────────────────────────────────────────────┤
+│  [CHAT VILLAGE]                                         │ ← Zone 3
+├─────────────────────────────────────────────────────────┤
+│  [NAVIGATION BAR] 🏠 🏗️ 👥 🔬 ⚔️                         │ ← Menu fixe
+└─────────────────────────────────────────────────────────┘
+
+ZONE 1 : BARRE DE RESSOURCES (Extensible)
+─────────────────────────────────────────
+Mode compact (par défaut) :
+- Affichage de 5 ressources critiques sur 1 ligne :
+  * Eau, Nourriture, Bois, Pierre, Argent (les plus utilisées)
+- Pour chaque ressource :
+  * Icône + Quantité actuelle / Max
+  * Indicateur gain/perte : flèche verte ↑ (+X/min) ou rouge ↓ (-X/min)
+  * Calcul sur les 30 dernières secondes (moyenne glissante)
+- Bouton : "⋮ TOUTES LES RESSOURCES" (expand)
+
+Mode étendu (clic sur bouton) :
+- Overlay semi-transparent sur la vue village (50% hauteur écran)
+- Grille 5 colonnes × N lignes (scroll vertical)
+- Tri par criticité :
+  1. Ressources en perte critique (< 10% capacité, perte active)
+  2. Ressources en perte (perte active)
+  3. Ressources stables
+  4. Ressources en gain
+- Couleurs :
+  * Rouge : < 20% capacité
+  * Orange : 20-50%
+  * Jaune : 50-80%
+  * Vert : > 80%
+- Détails par ressource (survol/clic) :
+  * Production : +X/h (détail par bâtiment)
+  * Consommation : -Y/h (détail par bâtiment)
+  * Bilan : ±Z/h
+  * Temps avant remplissage ou épuisement
+- Bouton : "× FERMER" (retour mode compact)
+
+ZONE 2 : VUE VILLAGE ISOMÉTRIQUE (Style Clash of Clans)
+────────────────────────────────────────────────────────
+Grille et terrain :
+- Terrain : 50×50 cases (extensible si besoin futur)
+- Taille case : ~32×32 pixels (vue isométrique 2:1)
+- Affichage : Canvas HTML5 ou WebGL (performances optimisées)
+- Zoom : 50% à 200% (pinch sur mobile, molette sur PC)
+- Déplacement : drag/swipe (limité aux bordures du village)
+
+Bâtiments :
+- Tailles variables : 1×1 à 5×5 cases (selon type)
+  * Maison : 2×2
+  * Forge : 3×3
+  * Ferme : 4×3
+  * Caserne d'Escouades : 4×4
+  * Décorations : 1×1 à 3×3
+- Affichage :
+  * Sprite 2D isométrique (style pixel art ou cartoon)
+  * Évolution visuelle selon niveau (détails, couleurs, effets)
+  * Icône de statut : ✓ (actif), ⏸ (pause), ⚠ (problème), 🔨 (construction)
+- Interaction :
+  * Tap/clic sur bâtiment → Modal détails + actions rapides
+  * Long press → Menu contextuel (éditer, améliorer, détruire)
+
+Routes :
+- Génération automatique : algorithme de chemin minimum (Dijkstra ou A*)
+- Style : chemin de terre/pavé (selon niveau village)
+- Largeur : 1 case
+- Possibilité de routes personnalisées en mode édition
+
+PNJ animés (15-30 sprites simultanés) :
+- Animation : déplacement entre bâtiments (domicile ⇔ travail ⇔ auberge ⇔ entrepôt)
+- Vitesse : 1 case/seconde (ajustable)
+- Chemins : précalculés et mis en cache (optimisation)
+- Pas de simulation réelle : purement visuel pour donner vie au village
+- Affichage nom/niveau au survol (optionnel, réglage utilisateur)
+
+Murailles (affichage automatique, mode normal uniquement) :
+- Génération procédurale autour du périmètre de tous les bâtiments
+- Forme : polygone convexe englobant
+- Portes automatiques : là où les routes entrent/sortent
+- Niveau muraille visible (hauteur, matériaux selon niveau)
+- En mode édition : murailles invisibles/transparentes
+
+Mode NORMAL (par défaut) :
+- Vue complète avec animations, murailles, PNJ
+- Bouton flottant : "✏️ ÉDITER LE VILLAGE" (bottom-right)
+
+Mode ÉDITION (clic sur bouton "Éditer") :
+- Grille visible (lignes pointillées, coordonnées)
+- Murailles invisibles/semi-transparentes
+- PNJ masqués ou transparents
+- Bâtiments déplaçables : drag & drop
+- Bâtiments constructibles : menu latéral avec liste + icônes
+  * Filtre par catégorie (Production, Défense, Bien-être, etc.)
+  * Affichage si disponible ou cadenas si recherche requise
+- Routes éditables :
+  * Mode "Tracer route" : dessiner à la main
+  * Mode "Effacer route" : supprimer portions
+  * Bouton "Auto-routes" : régénère automatiquement
+- Zone de stockage bâtiments :
+  * Sidebar avec bâtiments stockés (non placés)
+  * Drag depuis sidebar → placement sur grille
+  * Drag depuis grille → retour sidebar (stockage)
+- Validation :
+  * Vérification accessibilité (chaque bâtiment doit avoir route)
+  * Vérification espacement (pas de chevauchement)
+- Boutons :
+  * "✓ VALIDER" : sauvegarde les changements, retour mode normal
+  * "✕ ANNULER" : annule tous les changements, retour état précédent
+
+PLACEMENT AUTOMATIQUE DES BÂTIMENTS (Villages IA + Nouveau bâtiment joueur) :
+─────────────────────────────────────────────────────────────────────────────
+Algorithme de placement en spirale (depuis le centre du village) :
+1. Point de départ : centre village (25, 25)
+2. Pour chaque nouveau bâtiment :
+   a. Chercher position libre la plus proche du centre en spirale
+   b. Directions testées : N, NE, E, SE, S, SW, W, NW (8 directions)
+   c. Rayon augmente progressivement : 1, 2, 3, ..., 25
+   d. Vérifications :
+      - Pas de chevauchement avec bâtiments existants
+      - Distance min 1 case entre bâtiments (pour routes)
+   e. Si trouvé : placer et sauvegarder position (pos_x, pos_y en DB)
+   f. Sinon : continuer rayon suivant
+
+Utilisation :
+- **Villages IA** : placement 100% automatique (pas d'édition manuelle)
+- **Village joueur** : placement automatique initial, puis éditable manuellement
+- **Nouveau bâtiment** : placé automatiquement, joueur peut le déplacer ensuite
+
+Avantages :
+- Village compact et organisé (proche du centre)
+- Extensible facilement (spirale continue)
+- Cohérent pour génération procédurale (villages IA identiques si même seed)
+
+COULEURS ET VISUELS BÂTIMENTS (Évolution par niveau) :
+─────────────────────────────────────────────────────────
+Palette de couleurs par niveau de bâtiment :
+- Niveau 1-2 : #8B4513 (Brun terre, matériaux basiques)
+- Niveau 3-4 : #A0522D (Brun clair, bois traité)
+- Niveau 5-6 : #D2691E (Orange brun, pierre)
+- Niveau 7-8 : #FF8C00 (Orange foncé, métal)
+- Niveau 9-10 : #FFD700 (Or, matériaux rares)
+
+Application :
+- Bordure/contour du sprite bâtiment coloré selon niveau
+- Particules/effets visuels : plus intenses avec niveau élevé
+- Toit/détails : évolution graphique (paille → tuiles → métal)
+
+ZOOM ADAPTATIF AUTOMATIQUE :
+────────────────────────────────────
+Le zoom s'ajuste automatiquement selon le nombre de bâtiments :
+- **< 5 bâtiments** : Zoom 200% (village tout petit, on voit détails)
+- **5-15 bâtiments** : Zoom 100% (vue normale)
+- **> 15 bâtiments** : Zoom 50% (vue d'ensemble large)
+
+Utilisateur peut override manuellement (pinch/molette), mais bouton "Reset Zoom" ramène à l'adaptatif.
+
+STADES DE DÉVELOPPEMENT VILLAGE (Affichage UI) :
+──────────────────────────────────────────────────
+Indicateur visuel et texte affiché selon nombre de bâtiments :
+
+| Nombre bâtiments | Stade | Couleur badge | Description |
+|------------------|-------|---------------|-------------|
+| 0-3 | Campement | Gris | "Votre village commence tout juste" |
+| 4-7 | Hameau | Bleu | "Un petit hameau prend forme" |
+| 8-14 | Village | Vert | "Votre village prospère" |
+| 15-24 | Bourg | Jaune | "Un bourg important" |
+| 25+ | Cité | Or | "Une cité rayonnante !" |
+
+Affichage :
+- Badge en haut à gauche de la Zone 2 : "🏘️ Village (Stade : Bourg)"
+- Apparaît au survol ou toujours visible (option utilisateur)
+
+VÉGÉTATION PROCÉDURALE (Décoration automatique) :
+───────────────────────────────────────────────────
+Génération automatique d'éléments de décoration sur les cases vides :
+- **Quantité** : 15-25 éléments aléatoires (selon taille village)
+- **Types** :
+  * Arbres : 🌳 🌲 (40%)
+  * Buissons : 🌿 🌱 (30%)
+  * Champignons : 🍄 (15%)
+  * Rochers : 🪨 (10%)
+  * Fleurs : 🌸 🌻 (5%)
+- **Placement** :
+  * Cases vides uniquement (pas sur routes ni bâtiments)
+  * Aléatoire avec seed (même seed = même végétation, utile pour villages IA)
+  * Rafraîchi toutes les 24h (légère variation)
+- **Mode édition** : végétation transparente/masquée pour ne pas gêner
+
+ANIMATION PNJ (Optimisations) :
+─────────────────────────────────
+- **Chemins précalculés** : au chargement du village, tous les chemins PNJ calculés et mis en cache
+  * Domicile → Travail (bâtiment assigné)
+  * Travail → Auberge (si existe)
+  * Auberge → Domicile
+  * Domicile → Entrepôt (pour récupérer ressources)
+- **Algorithme** : A* sur grille (évite bâtiments, suit routes prioritairement)
+- **Refresh cache** : uniquement quand village modifié (nouveau bâtiment, route supprimée)
+- **Limite affichage** : max 15-30 PNJ animés simultanément (performance mobile)
+  * Si plus de 30 PNJ : rotation aléatoire (tous les 10s, 30 nouveaux affichés)
+- **Sprites par profession** :
+  * Fermier : 👨‍🌾
+  * Bûcheron : 🪓
+  * Mineur : ⛏️
+  * Marchand : 💼
+  * Garde : ⚔️
+  * Constructeur : 👷
+  * Chercheur : 🔬
+  * Cuisinier : 👨‍🍳
+  * Autre : 👤
+
+Boutons :
+  * "✓ VALIDER" (sauvegarde + retour mode normal)
+  * "× ANNULER" (annule modifications + retour mode normal)
+- Note : Le coût d'entretien des murailles se recalcule automatiquement selon le nouveau périmètre
+
+ZONE 3 : CHAT VILLAGE (Communication globale)
+──────────────────────────────────────────────
+Interface :
+- Hauteur : 150-200px (scroll vertical si besoin)
+- Messages affichés : derniers 50 (pagination si besoin)
+- Refresh : temps réel (WebSocket ou polling 5 secondes)
+
+Types de messages :
+1. **Annonces système** (fond bleu clair, icône ℹ️) :
+   - "Le bâtiment [Forge niveau 3] a été terminé"
+   - "Vous avez atteint le niveau 15 !"
+   - "Nouveau village IA découvert : [Nom Village]"
+
+2. **Événements PNJ** (fond jaune clair, icône 👥) :
+   - "[Jean] et [Marie] se sont mariés ! 💒"
+   - "[Pierre] a quitté le village (moral trop bas)"
+   - "[Sophie] est blessée suite à un accident de travail"
+
+3. **Dialogues PNJ-PNJ** (fond blanc, icône 💬) :
+   - "[Jean] : Cette forge est vraiment efficace maintenant !"
+   - "[Marie] à [Paul] : Tu as vu la nouvelle recrue ?"
+   - Générés par IA background (toutes les 6h, batch de 5-10 messages)
+
+4. **Annonces joueur** (fond vert clair, icône 📢) :
+   - Message du joueur diffusé à tous les PNJ
+   - Exemple : "Tout le monde au rapport, nous partons en mission !"
+   - Réponse du narrateur IA :
+     - "Les villageois vous écoutent attentivement. [Jean] hoche la tête, [Marie] semble inquiète."
+     - Pas de dialogue direct, juste réactions contextuelles
+
+Filtres (boutons toggle au-dessus du chat) :
+- 📊 Système (annonces techniques)
+- 👥 Événements (mariages, départs, etc.)
+- 💬 Dialogues (conversations PNJ)
+- 📢 Annonces (messages joueur)
+- Tous activés par défaut, toggle individuel
+
+Envoi de message (joueur) :
+- Champ texte : "Faire une annonce..." (placeholder)
+- Bouton : "📢 ANNONCER"
+- Limitation : 1 annonce toutes les 5 minutes (évite spam)
+- L'IA génère une réaction narrative globale (2-3 lignes)
+
+NAVIGATION BAR (Fixe en bas, toujours visible)
+───────────────────────────────────────────────
+5 icônes principales :
+1. 🏠 Village (page actuelle, surligné)
+2. 🏗️ Bâtiments
+3. 👥 PNJ
+4. 🔬 Recherche
+5. ⚔️ Missions
+
+Style :
+- Background opaque (pas de transparence, lisibilité)
+- Icône active : surligné + couleur accent
+- Hauteur : 56-60px
+- Animation : tap feedback (scale 0.95 → 1.0)
+
+════════════════════════════════════════════════════════════════════════════════
+6) PAGE BÂTIMENTS (Liste et gestion)
+════════════════════════════════════════════════════════════════════════════════
+
+HEADER (Sticky top, toujours visible au scroll) :
+───────────────────────────────────────────────
+Bâtiments en construction/amélioration :
+- Carrousel horizontal (swipe left/right)
+- Affichage par bâtiment en travaux :
+  * Icône bâtiment + niveau cible
+  * Barre de progression temporelle (% temps écoulé)
+  * Temps restant : "2h 15m"
+  * PNJ assigné à la construction (avatar miniature + nom)
+- Si aucun : message "Aucun bâtiment en construction"
+- Note système : Max constructions simultanées = Nb PNJ sans emploi (hors maison)
+  * Si PNJ constructeur assigné à un bâtiment → construction en pause
+  * Reprise automatique quand un autre PNJ sans emploi est disponible
+
+FILTRES ET TRI (Barre sous le header) :
+───────────────────────────────────────
+Filtres :
+- Toggle buttons (multi-sélection) :
+  * 🏠 Base (Maison, Puits, Ferme, Cuisine, Entrepôt)
+  * ⚙️ Production (Scierie, Carrière, Mine, Ateliers)
+  * ⚔️ Militaire (Caserne, Murailles, Caserne d'Escouades)
+  * 🎭 Bien-être (Auberge)
+  * 🤖 Automatisation (Bureau de Gestion)
+  * 📦 Tous
+- Statut :
+  * ✓ Actifs uniquement
+  * ⏸ En pause
+  * ⚠ Avec problèmes
+  * 📊 Tous (défaut)
+
+Tri (dropdown) :
+- Par nom (A→Z)
+- Par niveau (croissant/décroissant)
+- Par efficacité (production - consommation)
+
+Bouton d'action :
+- "+ CONSTRUIRE" (flottant, bottom-right)
+  → Ouvre modal liste bâtiments disponibles/verrouillés
+
+LISTE DES BÂTIMENTS (Scroll vertical) :
+────────────────────────────────────────
+Card par bâtiment :
+┌─────────────────────────────────────────────────┐
+│ [Icône]  FORGE - Niveau 8                  ⚠   │
+│          PNJ : 4/5  │  Production : +120 Métal │
+│          Consommation : -80 Pierre, -20 Bois   │
+│          ⚠ Problème : 1 PNJ manquant            │
+│ [DÉTAILS]              [AMÉLIORER]              │
+└─────────────────────────────────────────────────┘
+
+Éléments :
+- Icône de statut (coin supérieur droit) :
+  * ✓ Actif (vert)
+  * ⏸ En pause (gris)
+  * ⚠ Problème (orange/rouge)
+  * 🔨 En construction (bleu)
+- Informations résumées :
+  * PNJ assignés / Max
+  * Production : ressources/heure (vert si positif)
+  * Consommation : ressources/heure (rouge)
+- Messages de problème (si applicable) :
+  * "Manque 2 PNJ"
+  * "Manque 50 Bois/h (production arrêtée)"
+  * "Accident : désactivé 6h restantes"
+  * "Sabotage : réparation en cours"
+
+Boutons :
+- "DÉTAILS" → Ouvre modal détaillée
+- "AMÉLIORER" → Lance amélioration (si ressources suffisantes)
+
+MODAL "CONSTRUIRE UN BÂTIMENT" (Clic sur + CONSTRUIRE) :
+────────────────────────────────────────────────────────
+Liste complète des types de bâtiments :
+- Séparés par catégories (accordéon ou tabs)
+- Pour chaque bâtiment :
+  * Icône + Nom
+  * Niveau 1 (description courte)
+  * Coût construction
+  * Prérequis (si applicable) :
+    - ✓ Recherche débloquée (vert)
+    - 🔒 Recherche "Artisanat avancé" requise (rouge, lien vers page Recherche)
+  * Bouton : "CONSTRUIRE" ou "🔒 VERROUILLÉ"
+
+Bâtiments verrouillés :
+- Affichés en gris avec icône cadenas
+- Clic → Tooltip "Recherche [Nom] requise" + lien direct page Recherche
+
+MODAL "DÉTAILS DU BÂTIMENT" (Clic sur DÉTAILS depuis liste) :
+──────────────────────────────────────────────────────────────
+Sections :
+
+1. VISUEL ET INFOS GÉNÉRALES (haut) :
+   - Image du bâtiment en grand (vue 3D/2D)
+   - Nom + niveau actuel
+   - Description (2-3 lignes)
+   - Effets actifs (production, bonus, etc.)
+
+2. ASSIGNATION DES PNJ (milieu) :
+   - Capacité : "4/5 PNJ assignés"
+   - Liste PNJ actifs :
+     ┌────────────────────────────────────┐
+     │ [Avatar] Jean - Niveau 12 (Force)  │
+     │          Production : +30%         │
+     │ [RETIRER]  [💬 DISCUTER]           │
+     └────────────────────────────────────┘
+   - Bouton : "+ ASSIGNER UN PNJ"
+     → Ouvre modal sélection PNJ disponibles (triés par niveau pertinent pour ce bâtiment)
+   - PNJ disponibles :
+     * Filtrés : PNJ sans emploi (hors maison)
+     * Triés par : Niveau de compétence pour ce bâtiment (desc)
+     * Affichage : Avatar + Nom + Niveau compétence + Estimation bonus production
+
+3. PRODUCTION ET CONSOMMATION (bas) :
+   - Graphique simple (barres ou jauges) :
+     * Production : +X ressource/h (vert)
+     * Consommation : -Y ressource/h (rouge)
+     * Bilan : ±Z ressource/h (vert si positif, rouge si négatif)
+   - Détails par ressource (liste déroulante)
+
+4. CHAT BÂTIMENT (section extensible) :
+   - Bouton : "💬 DISCUTER AVEC L'ÉQUIPE"
+   - Ouvre interface chat contextuel :
+     * Participants : Joueur + tous les PNJ assignés à ce bâtiment
+     * Contexte pour IA : "Vous êtes au [Nom bâtiment], en train de travailler"
+     * Historique des 20 derniers messages
+     * Champ texte + bouton "ENVOYER"
+   - Génération IA :
+     * Prend en compte : personnalités PNJ, relations, moral, événements récents
+     * Réponses individuelles ou collectives selon contexte
+
+Boutons d'action (footer modal) :
+- "🔧 AMÉLIORER" (si ressources suffisantes)
+- "⏸ METTRE EN PAUSE" / "▶ RÉACTIVER"
+- "🗑️ DÉTRUIRE" (confirmation requise, récupère 50% ressources)
+- "× FERMER"
+
+════════════════════════════════════════════════════════════════════════════════
+7) PAGE PNJ (Gestion des personnages)
+════════════════════════════════════════════════════════════════════════════════
+
+HEADER : FILTRES ET TRI
+───────────────────────
+Filtres :
+- Barre de recherche : "Rechercher par nom..." (live search)
+- Sexe : Tous / Homme / Femme / Non-binaire
+- Statut :
+  * Tous (défaut)
+  * Disponibles (sans emploi hors maison)
+  * Employés (assignés à un bâtiment)
+  * En mission
+  * Blessés
+- Tri (dropdown) :
+  * Niveau global (croissant/décroissant)
+  * Nom (A→Z, Z→A)
+  * Date de recrutement (récent → ancien)
+
+LISTE DES PNJ (Grille 2 colonnes sur mobile, 4-5 sur PC) :
+───────────────────────────────────────────────────────────
+Vignette par PNJ :
+┌──────────────────────────┐
+│   [Avatar miniature]     │
+│   Jean - Niveau 15       │
+│   ⚙️ Forge (Niveau 8)    │
+│   💚 Moral : 85%         │
+└──────────────────────────┘
+
+Éléments :
+- Avatar : vue de face réduite (avec équipement visible)
+- Nom + niveau global
+- Icône emploi : bâtiment assigné (ou "Sans emploi" si disponible)
+- Indicateur moral : couleur (vert > 70, jaune 40-70, rouge < 40)
+- Badge si en mission : "⚔️ En mission"
+- Badge si blessé : "🩹 Blessé (6h restantes)"
+
+Clic sur vignette → Ouvre MODAL DÉTAILS PNJ
+
+MODAL "DÉTAILS DU PNJ" (Plein écran sur mobile) :
+──────────────────────────────────────────────────
+Layout :
+┌────────────────────────────────────────────┐
+│ [Nom - Niveau global]          [× FERMER]  │
+├──────────────┬─────────────────────────────┤
+│              │  [ÉQUIPEMENT]               │
+│   [Vue PNJ]  │  🎩 Casque : ...            │
+│   Complète   │  👕 Torse : ...             │
+│   2D/3D      │  🥾 Pieds : ...             │
+│              │  ...                        │
+│              │  💪 Score total : 450       │
+├──────────────┴─────────────────────────────┤
+│  [STATS DÉTAILLÉES]                        │
+│  Force : ████████░░ 80 (60 PNJ + 20 équip) │
+│  Dextérité : ██████░░░░ 60                 │
+│  ...                                       │
+├────────────────────────────────────────────┤
+│  [ACTIONS]                                 │
+│  [💬 DISCUTER] [⚙️ ASSIGNER] [⚔️ MISSION]   │
+└────────────────────────────────────────────┘
+
+Section 1 : VUE PNJ (gauche, 40%) :
+- Affichage corps complet (vue de face)
+- Équipement visible sur le personnage
+- Zoom/rotation possible (optionnel)
+
+Section 2 : GESTION ÉQUIPEMENT (droite haut, 60%) :
+- Liste des 9-11 slots (selon classe) :
+  * Casque, Épaules, Torse, Jambes, Pieds, Gants
+  * Bijoux ×3
+  * Armes ×1-2
+  * +1 bijou si prestige cycle 3+
+  * +1 arme si prestige cycle 4+
+- Affichage par slot :
+  * Icône équipement + nom + niveau + rareté (couleur)
+  * Score contribué : +X
+  * Bouton : "↻ CHANGER"
+- Clic sur "CHANGER" :
+  → Ouvre modal liste équipements disponibles pour ce slot
+  → Tri par : Score (desc), Rareté, Stats prioritaires
+  → Clic sur équipement → Équipé instantanément
+
+- Score total PNJ :
+  * Niveau PNJ + Somme scores équipements × multiplicateurs rareté
+  * Affichage visuel : jauge + nombre
+
+Section 3 : STATS DÉTAILLÉES (bas) :
+- 6 stats principales :
+  * Force, Dextérité, Endurance, Vitesse, Intelligence, Chance
+- Barres de progression pour chaque stat :
+  * Couleur décomposée :
+    - Base PNJ (bleu)
+    - Bonus équipement (vert)
+    - Bonus temporaires (jaune)
+  * Valeur numérique : "80 (60 PNJ + 20 équip)"
+- Tooltip au survol : détail par source (classe, niveaux, équipements)
+
+Section 4 : INFORMATIONS COMPLÉMENTAIRES (accordéon) :
+- Biographie : texte personnalisé (si renseigné)
+- Traits de caractère : liste (Travailleur, Sociable, etc.)
+- Relations :
+  * Avec le joueur : barre -100 à +100
+  * Avec autres PNJ : top 5 (meilleurs amis / ennemis)
+- Historique :
+  * Date de recrutement
+  * Missions accomplies : X
+  * Ennemis vaincus : Y
+  * Équipements craftés : Z
+
+Section 5 : ACTIONS (footer, boutons) :
+- **💬 DISCUTER** :
+  → Ouvre chat privé avec ce PNJ
+  → Contexte IA : localisation aléatoire (chez lui / au travail / à l'auberge)
+  → Génération start conversation personnalisée
+  
+- **⚙️ ASSIGNER À UN BÂTIMENT** :
+  → Ouvre modal sélection bâtiment (filtrés : places disponibles)
+  → Affichage bonus production estimé
+  
+- **⚔️ ENVOYER EN MISSION** :
+  → Redirection page Missions avec ce PNJ pré-sélectionné
+  
+- **🏠 RETIRER DU BÂTIMENT** (si employé) :
+  → Confirmation → PNJ devient disponible
+  
+- **❤️ VOIR FAMILLE** (si marié) :
+  → Affiche conjoint + enfants (si applicable)
+
+════════════════════════════════════════════════════════════════════════════════
+8) PAGE RECHERCHE (Arbre technologique)
+════════════════════════════════════════════════════════════════════════════════
+
+Affichage :
+- Arbre visuel type "Tech Tree" (style Civilization, Age of Empires)
+- Canvas scrollable (horizontal + vertical)
+- Zoom : 75% à 150%
+
+Organisation :
+- 7 branches verticales (colonnes) :
+  1. Taille d'équipe
+  2. Déblocage bâtiments
+  3. Amélioration bâtiments
+  4. Efficacité production
+  5. Combat et missions
+  6. Craft et équipement
+  7. Automatisation et confort
+
+- Chaque branche : nœuds empilés verticalement (chronologie)
+- Lignes de connexion entre nœuds (prérequis)
+
+Nœud de recherche (état : disponible) :
+┌──────────────────────────┐
+│ [Icône] DUO DE SURVIE    │
+│ Coût : 100 PC, 50 Argent │
+│ Temps : 2h               │
+│ [RECHERCHER]             │
+└──────────────────────────┘
+
+Nœud de recherche (état : verrouillé) :
+┌──────────────────────────┐
+│ 🔒 ESCOUADE TACTIQUE     │
+│ Prérequis : Duo de survie│
+│ Centre Recherche niv. 2  │
+└──────────────────────────┘
+
+Nœud de recherche (état : en cours) :
+┌──────────────────────────┐
+│ [Icône] DUO DE SURVIE    │
+│ ████████░░ 80%           │
+│ Temps restant : 24min    │
+└──────────────────────────┘
+
+Nœud de recherche (état : terminé) :
+┌──────────────────────────┐
+│ ✓ DUO DE SURVIE          │
+│ Débloqué ✓               │
+└──────────────────────────┘
+
+Couleurs :
+- Disponible : vert clair (bordure verte)
+- Verrouillé : gris (bordure grise)
+- En cours : bleu (bordure bleue animée)
+- Terminé : vert foncé (bordure verte épaisse)
+
+Clic sur nœud disponible :
+- Modal confirmation :
+  * Description complète de la recherche
+  * Coût détaillé (Points de Connaissance + ressources)
+  * Temps estimé
+  * Effets débloqués (liste)
+  * Bouton "LANCER LA RECHERCHE"
+  * Bouton "ANNULER"
+
+Clic sur nœud verrouillé :
+- Tooltip : "Prérequis manquants : ..."
+- Lien vers prérequis (scroll auto vers nœud requis)
+
+Clic sur nœud en cours :
+- Modal : informations + bouton "ANNULER LA RECHERCHE" (récupère 50% coût)
+
+Clic sur nœud terminé :
+- Modal : rappel des effets débloqués
+
+HEADER (sticky) :
+- Production actuelle de Points de Connaissance :
+  * "Production : +45 PC/h"
+  * Détail : "Centre de Recherche niv. 10, 3 PNJ"
+- Recherche en cours (si applicable) :
+  * Nom + barre progression + temps restant
+
+Queue de recherche :
+- Maximum 1 recherche active à la fois (limitation volontaire)
+- Option future : débloquer queue avec prestige ou recherche spéciale
+
+════════════════════════════════════════════════════════════════════════════════
+9) PAGE MISSIONS (Préparation et déroulement)
+════════════════════════════════════════════════════════════════════════════════
+
+VUE PRINCIPALE : SÉLECTION TYPE DE MISSION
+───────────────────────────────────────────
+3 grandes cards (style choix) :
+┌───────────────────────────────────┐
+│ 🌾 MISSION DE RÉCOLTE             │
+│ Récupérez des ressources          │
+│ Récompense : Ressources variées   │
+│ [PRÉPARER]                        │
+└───────────────────────────────────┘
+
+┌───────────────────────────────────┐
+│ 🆘 MISSION DE SAUVETAGE           │
+│ Recrutez de nouveaux PNJ          │
+│ Récompense : 0-3 PNJ              │
+│ [PRÉPARER]                        │
+└───────────────────────────────────┘
+
+┌───────────────────────────────────┐
+│ 🗺️ MISSION D'EXPLORATION          │
+│ Découvrez de l'équipement         │
+│ Récompense : Équipements          │
+│ [PRÉPARER]                        │
+└───────────────────────────────────┘
+
+Missions en cours (header) :
+- Liste horizontale (carousel) :
+  * Nom mission + type
+  * PNJ envoyés (avatars)
+  * Temps restant : "1h 25m"
+  * Bouton : "SUIVRE" (affiche déroulement en direct)
+
+Clic sur "PRÉPARER" → VUE BRIEFING
+
+VUE BRIEFING (Préparation de la mission) :
+──────────────────────────────────────────
+Sections :
+
+1. DESCRIPTION DE LA MISSION (haut) :
+   - Titre généré par IA (ex: "Raid sur l'entrepôt abandonné")
+   - Description narrative (3-5 lignes, générée par IA selon type et niveau)
+   - Icône + type de mission
+
+2. SÉLECTION DU NIVEAU (milieu gauche) :
+   - Slider : Niveau 1 à 100 (ou max débloqué)
+   - Affichage dynamique :
+     * Niveau sélectionné
+     * Score requis pour 80% réussite
+     * Kits de survie requis
+     * Récompenses estimées (ressources ±X, équipements rareté Y-Z)
+
+3. SÉLECTION DES PNJ (milieu droit) :
+   - 2 modes :
+     
+     **Mode Escouade** (si Caserne d'Escouades construite) :
+     - Liste des 3 escouades (bouton radio)
+     - Affichage par escouade :
+       * Nom escouade (éditable)
+       * Nombre PNJ : X/10
+       * Score total équipe : Y
+       * Bouton : "SÉLECTIONNER"
+     
+     **Mode Manuel** :
+     - Liste PNJ disponibles (non en mission, non employés critiques)
+     - Tri par score (desc)
+     - Multiselection (max = limite recherche débloquée)
+     - Affichage par PNJ :
+       * Avatar + Nom + Niveau
+       * Score individuel
+       * Checkbox
+     - Score total équipe : somme
+
+4. ALLOCATION RESSOURCES (bas gauche) :
+   - Kits de survie requis : X
+   - Stock disponible : Y
+   - Slider ou input : quantité à emporter
+   - Validation : stock suffisant
+
+5. ESTIMATION RÉUSSITE (bas centre) :
+   - Calcul basé sur : Score équipe VS Score requis
+   - Affichage :
+     * Jauge circulaire colorée :
+       - Rouge < 40% : "Très risqué"
+       - Orange 40-60% : "Risqué"
+       - Jaune 60-75% : "Incertain"
+       - Vert clair 75-90% : "Bon"
+       - Vert foncé > 90% : "Excellent"
+     * % chiffré
+   - Icône de warning si % < 60%
+
+6. RÉCOMPENSES ESTIMÉES (bas droite) :
+   - Liste dynamique (selon niveau + type) :
+     * Récolte : "~500-800 ressources variées, 50-80 kits"
+     * Sauvetage : "1-3 PNJ niveau 20-30"
+     * Exploration : "5-8 équipements Épique niveau 40-55"
+   - Note : "Estimations, résultat peut varier"
+
+Boutons d'action (footer) :
+- "← RETOUR" (retour sélection type)
+- "🚀 LANCER LA MISSION" (si validation OK)
+
+Validation avant lancement :
+- Au moins 1 PNJ sélectionné
+- Kits de survie suffisants
+- Confirmation si % réussite < 60% : "Mission très risquée, continuer ?"
+
+VUE DÉROULEMENT DE LA MISSION (Style Fallout Shelter) :
+────────────────────────────────────────────────────────
+Affichage :
+- Barre de progression horizontale (gauche → droite)
+- Icônes PNJ positionnées sur la barre (avancent progressivement)
+- Vitesse : durée totale = Niveau mission × 2 minutes (exemple : niveau 50 = 100 min)
+
+Zone narrative (haut, 60%) :
+- Champ texte déroulant (auto-scroll)
+- Messages générés par IA toutes les 30-60 secondes :
+  * "[15:32] L'équipe progresse prudemment dans les ruines..."
+  * "[15:33] Jean repère des traces récentes. Soyez vigilants."
+  * "[15:34] ⚔️ COMBAT ! 3 Raiders attaquent !"
+  * "[15:35] Jean inflige 45 dégâts à Raider #1"
+  * "[15:36] ✓ Victoire ! Butin : 50 Métal, 30 Munitions"
+  * "[15:38] Marie trouve un coffre caché..."
+
+- Génération IA :
+  * Contexte : niveau mission, PNJ participants, équipement, récompenses calculées
+  * Événements pré-calculés : combats (si ennemis générés), découvertes
+  * Style narratif immersif (1ère personne ou narrateur externe)
+
+Zone combats (si combat, overlay temporaire) :
+- Affichage tour par tour (accéléré) :
+  * PNJ VS Ennemis (sprites miniatures)
+  * Animations simples (attaque, esquive, dégâts)
+  * Barre PV pour chaque combattant
+  * Log actions : "[Jean] attaque [Raider] : 45 dégâts"
+- Durée combat : 30-90 secondes (automatique)
+- Résultat : victoire ou défaite (impacte suite mission)
+
+Boutons d'action :
+- "⏸ PAUSE" (met en pause génération narrative, timer continue)
+- "⏩ ACCÉLÉRER ×2" (double vitesse, optionnel)
+- "🔙 RAPPELER" (confirmation requise) :
+  * Temps de retour = (100% - progression%) × temps total
+  * Récompenses = progression% × récompenses calculées
+  * Malus : -20% XP
+
+FIN DE MISSION :
+────────────────
+Modal récapitulatif :
+- Résultat : ✓ Succès / ❌ Échec
+- Récit final (2-3 lignes générées par IA)
+- Récompenses obtenues (liste détaillée) :
+  * Ressources
+  * Équipements (avec rareté colorée)
+  * PNJ recrutés (si sauvetage)
+- XP gagnée par PNJ :
+  * Affichage par PNJ : +X XP, niveau up si applicable
+- Pertes (si échec ou défaite) :
+  * Équipements perdus/endommagés
+  * PNJ blessés (malus temporaire)
+- Bonus (si succès sans rappel) :
+  * +10% XP
+  * +5% récompenses
+
+Boutons :
+- "RÉCUPÉRER LES RÉCOMPENSES" :
+  * Si inventaire plein → choix (vendre / stocker courrier / gérer inventaire)
+  * Sinon → ajout automatique + retour page missions
+- "RELANCER UNE MISSION" (raccourci, même type + niveau)
+
+════════════════════════════════════════════════════════════════════════════════
+10) PAGE PROGRESSION (Statistiques et achievements)
+════════════════════════════════════════════════════════════════════════════════
+
+Sections :
+
+1. VUE D'ENSEMBLE (haut) :
+   ────────────────────────
+   - Niveau joueur : X
+   - XP actuelle / XP requise pour niveau suivant
+   - Barre de progression
+   - Cycle prestige : Y/10 (si applicable)
+   - Temps de jeu total : Zh
+
+2. STATISTIQUES GÉNÉRALES (accordéons) :
+   ────────────────────────────────────
+   **Village** :
+   - Nombre de bâtiments : X
+   - Niveau moyen bâtiments : Y
+   - PNJ totaux : Z (W actifs, V en mission)
+   - Production nette/jour : liste ressources
+
+   **Missions** :
+   - Missions réussies : X
+   - Missions échouées : Y
+   - Taux de réussite : Z%
+   - Niveau max atteint : W
+   - Ennemis vaincus : V
+   - PNJ recrutés : U
+
+   **Craft et Équipement** :
+   - Équipements craftés : X
+   - Équipements Légendaires : Y
+   - Équipements Mythiques : Z
+
+   **Recherche** :
+   - Recherches complétées : X/40
+   - Points de Connaissance dépensés : Y
+
+   **Social** :
+   - Mariages : X
+   - Enfants : Y
+   - Meilleure relation PNJ : Z (+W)
+
+3. ACHIEVEMENTS (Liste scrollable) :
+   ─────────────────────────────────
+   Catégories (tabs) :
+   - Tous
+   - Village
+   - Combat
+   - Craft
+   - Social
+
+   Card par achievement :
+   ┌──────────────────────────────────────┐
+   │ ✓ PREMIER PAS                        │
+   │ Construisez votre premier bâtiment   │
+   │ Débloqué le : 01/11/2025             │
+   │ Récompense : +100 Argent             │
+   └──────────────────────────────────────┘
+
+   ┌──────────────────────────────────────┐
+   │ 🔒 ARCHITECTE MASTER                 │
+   │ Construisez 50 bâtiments             │
+   │ Progression : 23/50 ████████░░░░░    │
+   └──────────────────────────────────────┘
+
+   Exemples d'achievements :
+   - Premier PNJ recruté
+   - Premier mariage
+   - Atteindre niveau 50
+   - Compléter 100 missions
+   - Crafter un équipement Mythique
+   - Devenir allié avec un village IA
+   - Survivre à 10 attaques ennemies
+   - Atteindre 1000 PNJ (cycles prestige avancés)
+
+4. CLASSEMENT (Optionnel, multi-joueur futur) :
+   ──────────────────────────────────────────────
+   - Classement local (si plusieurs comptes)
+   - Filtres : Par niveau, par prestige, par achievements
+
+5. PRESTIGE (Si niveau 100 atteint) :
+   ───────────────────────────────────
+   - Bouton : "🔄 LANCER LE PRESTIGE"
+   - Modal confirmation :
+     * Rappel des bonus du cycle suivant
+     * Liste ce qui est conservé / perdu
+     * Confirmation : "Êtes-vous sûr ?"
+   - Lance le reset + attribution bonus
+
+════════════════════════════════════════════════════════════════════════════════
+11) PAGE CARTE DU MONDE (Villages IA et diplomatie)
+════════════════════════════════════════════════════════════════════════════════
+
+Accessible via : Bouton "+ CARTE" dans navigation ou header page Village
+
+VUE CARTE (Canvas 2D) :
+───────────────────────
+Affichage :
+- 5 emplacements fixes (disposition circulaire ou en croix)
+- Centre : Village joueur (icône maison, nom personnalisé)
+- 4 emplacements périphériques : Villages IA
+
+Village IA (icon coloré selon relation) :
+┌────────────────────┐
+│  🏘️ [Nom Village]  │
+│  Score : ~350      │
+│  Relation : +65    │
+│  (ALLIÉ)           │
+└────────────────────┘
+
+Couleurs :
+- Vert : Allié (+50 à +100)
+- Bleu : Neutre (-49 à +49)
+- Rouge : Ennemi (-100 à -50)
+- Gris : Emplacement vide ou village détruit
+
+Clic sur village IA → MODAL DÉTAILS VILLAGE
+
+MODAL "DÉTAILS DU VILLAGE IA" :
+───────────────────────────────
+Sections :
+
+1. INFORMATIONS GÉNÉRALES :
+   - Nom du village
+   - Score approximatif (si espionné) : "~350"
+   - Relation : barre -100 à +100 (couleur)
+   - Statut : Allié / Neutre / Ennemi
+
+2. VUE DU VILLAGE (si relation > 0 ou espionné) :
+   - Grille 10×10 simplifiée
+   - 5-15 bâtiments (génération procédurale)
+   - 5-10 PNJ animés
+   - Routes automatiques
+   - Si relation < 0 : brouillard de guerre (50% masqué)
+
+3. RESSOURCES DISPONIBLES (si espionné) :
+   - Liste approximative (±20%) :
+     * Eau : ~500
+     * Bois : ~300
+     * Métal : ~200
+     * etc.
+
+4. RELATIONS AVEC AUTRES VILLAGES (si espionné) :
+   - Village IA 1 : Neutre
+   - Village IA 2 : Ennemi
+   - etc.
+
+5. ACTIONS DISPONIBLES :
+   
+   **🔍 ESPIONNER** (500 Argent, 2h) :
+   - Bouton : "ESPIONNER"
+   - Si relation > -80
+   - Révèle : score, ressources, relations
+   
+   **💱 ÉCHANGER** :
+   - Interface sélection ressources (drag & drop)
+   - Ratio selon relation :
+     * Allié : 1:1.2 (favorable)
+     * Neutre : 1:1
+     * Ennemi : 1:0.7 (défavorable)
+   - Limite : 1 échange/jour/village
+   
+   **👥 ÉCHANGER UN PNJ** (si allié +60) :
+   - Liste 1-3 PNJ proposés (régénérée chaque semaine)
+   - Coût : 1000 Argent + 500 ressources
+   - Ou envoyer un PNJ (gain : 1500 Argent, +5 relation)
+   
+   **🤝 MISSION D'AIDE** :
+   - Type : Récolte pour eux, Défense contre attaque, etc.
+   - Récompense : +10 relation, bonus ressources
+   
+   **⚔️ MISSION DE PILLAGE** :
+   - Risque : -30 relation, peut devenir ennemi
+   - Récompense : ressources ×1.5
+   
+   **🕊️ PACTE DE NON-AGRESSION** (si neutre) :
+   - Coût : 3000 Argent
+   - Durée : 30 jours
+   - Effet : Aucun ne peut attaquer l'autre
+   
+   **🤝 PROPOSER ALLIANCE** (si neutre +30 à +49) :
+   - Coût : 2000 Argent + 500 ressources (cadeau)
+   - Si accepté : relation passe à +60
+
+Notifications (affichées sur la carte) :
+- 🚨 "Village [Nom] vous attaque dans 2h !"
+- 💬 "Proposition d'échange de [Nom]"
+- ⚔️ "[Village A] et [Village B] sont en guerre"
+- 💀 "[Village C] a été détruit par des créatures"
+
+════════════════════════════════════════════════════════════════════════════════
+NAVIGATION GLOBALE (Récapitulatif)
+════════════════════════════════════════════════════════════════════════════════
+
+Bottom Navigation Bar (Fixe, toujours visible après connexion) :
+- 🏠 Village (hub principal)
+- 🏗️ Bâtiments (liste et gestion)
+- 👥 PNJ (gestion personnages)
+- 🔬 Recherche (arbre techno)
+- ⚔️ Missions (préparation et suivi)
+
+Accès secondaires :
+- 🌍 Carte du Monde : bouton dans header ou page Village
+- 📊 Progression : bouton dans menu hamburger ou header
+- ⚙️ Paramètres : icône engrenage (header)
+- 💬 Chat : accessible depuis Village, Bâtiments, PNJ (contextuel)
