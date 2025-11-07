@@ -9,24 +9,33 @@ from contextlib import asynccontextmanager
 
 from backend.app.config import settings
 from backend.app.database import init_db, close_db
-from backend.app.routes import auth, user, village, character, building, mission, equipment, research
+from backend.app.routes import auth, user, village, character, building, mission, equipment, research, worker
+from backend.app.workers.worker_manager import worker_manager
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
     Gestion du cycle de vie de l'application.
-    Initialise et ferme les ressources (base de données, etc.).
+    Initialise et ferme les ressources (base de données, workers, etc.).
     """
     # Startup: Initialiser la base de données
     print("🚀 Démarrage de Loots&Live...")
     await init_db()
     print("✅ Base de données initialisée")
     
+    # Startup: Démarrer les workers background
+    worker_manager.start()
+    print("✅ Workers background démarrés")
+    
     yield
     
-    # Shutdown: Fermer les connexions
+    # Shutdown: Arrêter les workers
     print("🛑 Arrêt de Loots&Live...")
+    worker_manager.stop()
+    print("✅ Workers arrêtés")
+    
+    # Shutdown: Fermer les connexions
     await close_db()
     print("✅ Connexions fermées")
 
@@ -81,6 +90,7 @@ app.include_router(building.router)
 app.include_router(mission.router)
 app.include_router(equipment.router)
 app.include_router(research.router)
+app.include_router(worker.router)
 
 
 @app.get("/", tags=["Root"])
