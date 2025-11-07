@@ -130,28 +130,76 @@
   - Remboursement destruction
   - Vérification disponibilité
 
+### 7. Gestion Missions (100%)
+- ✅ **Service complet (11 méthodes)**:
+  - `create_mission()` - Création avec 2-5 participants requis
+  - `start_mission()` - Lance (PREPARING → IN_PROGRESS)
+  - `complete_mission()` - Termine avec calcul résultats auto
+  - `recall_mission()` - Rappel anticipé sans récompenses ni dégâts
+  - `calculate_success_rate()` - Score équipe / (difficulté × 50)
+  - `generate_random_mission()` - Génération procédurale
+  - Vérifications: PNJ disponibles, HP > 0, pas déjà en mission
+- ✅ **3 Types de missions**:
+  - **Harvest**: Récolte ressources (30-120min) → Eau, Bois, Pierre, Nourriture
+  - **Rescue**: Sauvetage (60-240min) → Herbes, Nourriture, Tissu
+  - **Exploration**: Exploration (120-480min) → Métal, Minerai rare, Reliques, Gemmes
+- ✅ **Système de réussite**:
+  - Formule: Score moyen équipe / (difficulté × 50)
+  - Bonus Leader: +5% si classe Leader dans équipe
+  - Malus moral: -10% si moral village < 50 (placeholder)
+  - Taux final: 10%-95%
+- ✅ **Récompenses**:
+  - Succès: 100% ressources + XP complète (50 × difficulté)
+  - Échec: 30% ressources + 30% XP
+  - Casualties: 30% chance blessure par PNJ si échec (perte 30-50% HP)
+  - Chance équipement: 5-30% selon difficulté (placeholder)
+- ✅ **9 Routes API**:
+  - `POST /missions` - Créer mission
+  - `POST /missions/{id}/start` - Lancer
+  - `POST /missions/{id}/complete` - Terminer (calcul auto)
+  - `POST /missions/{id}/recall` - Rappeler
+  - `GET /missions` - Liste (filtre statut optionnel)
+  - `GET /missions/{id}` - Détails
+  - `GET /missions/{id}/success-rate` - Calculer taux réussite
+  - `DELETE /missions/{id}` - Supprimer (sauf IN_PROGRESS)
+  - `GET /missions/generate/{type}` - Générer proposition aléatoire
+- ✅ **Génération procédurale**:
+  - Difficulté aléatoire 1-10
+  - Durée selon type
+  - 1-3 ressources selon type
+  - Quantité: 10-30 × difficulté par ressource
+  - Noms aléatoires par type
+- ✅ **Gestion participants**:
+  - 2-5 PNJ requis (squad)
+  - Marquage is_on_mission automatique
+  - Distribution XP automatique
+  - Libération auto fin mission/rappel
+- ✅ **Protections**:
+  - Impossible supprimer mission en cours
+  - Impossible ajouter PNJ déjà en mission
+  - Impossible ajouter PNJ à 0 HP
+
 ## 🔄 En cours
 
-### 7. Gestion Missions (0%)
-**Prochaine étape** : Implémentation du service missions
+### 8. Gestion Equipment (0%)
+**Prochaine étape** : Implémentation du service equipment
 
 Fonctionnalités à implémenter:
-- [ ] 3 types missions (Récolte/Sauvetage/Exploration)
-- [ ] Formation squads (2-5 PNJ)
-- [ ] Calcul taux réussite (stats, équipement, danger)
-- [ ] Combat turn-by-turn
-- [ ] Rewards aléatoires
-- [ ] Rappel anticipé
-- [ ] Durée temps réel (workers)
+- [ ] Génération équipement procédurale
+- [ ] 6 raretés (Common → Mythic)
+- [ ] 11 slots équipement
+- [ ] Calcul stats bonus
+- [ ] Craft et amélioration
+- [ ] Routes CRUD complètes
 
 ## 📊 Statistiques
 
 ### Code produit
 - **Modèles**: 18 fichiers SQLAlchemy
 - **Schémas**: 13 fichiers Pydantic (50+ classes)
-- **Services**: 5 (auth, user, village, character, building)
-- **Routes**: 5 routers (auth, user, village, character, building)
-- **Endpoints API**: ~45 routes fonctionnelles
+- **Services**: 6 (auth, user, village, character, building, mission)
+- **Routes**: 6 routers (auth, user, village, character, building, mission)
+- **Endpoints API**: ~55 routes fonctionnelles
 
 ### Tests
 - ✅ Serveur démarre sans erreur
@@ -159,20 +207,20 @@ Fonctionnalités à implémenter:
 - ⏳ Script test API complet (test_api_flow.py créé)
 
 ### Commits Git
-- 7 commits principaux
+- 9 commits principaux
 - Repository: https://github.com/Scoplop/Loots-Live.git
 
 ## 🎯 Roadmap
 
-### Phase 1 : Core Game (En cours - 60%)
+### Phase 1 : Core Game (En cours - 70%)
 - [x] Infrastructure
 - [x] Authentification
 - [x] Users
 - [x] Villages de base
 - [x] **Characters (PNJ)**
 - [x] **Buildings (placement, production)**
-- [ ] **Missions (3 types)** ← Actuellement
-- [ ] Equipment (génération, rareté)
+- [x] **Missions (3 types)**
+- [ ] **Equipment (génération, rareté)** ← Actuellement
 - [ ] Research (arbre techno)
 
 ### Phase 2 : Game Loop (0%)
@@ -232,5 +280,5 @@ Docs API : http://127.0.0.1:8000/docs
 
 ---
 
-**Dernière mise à jour** : 07/11/2025 22:10  
-**Status** : ✅ Système Buildings complet (60% Phase 1), prêt pour Missions
+**Dernière mise à jour** : 07/11/2025 22:20  
+**Status** : ✅ Système Missions complet (70% Phase 1), prêt pour Equipment
