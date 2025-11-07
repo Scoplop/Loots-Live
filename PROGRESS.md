@@ -46,19 +46,59 @@
 - ✅ Gestion capacité stockage (max 1000 par ressource)
 - ✅ Vérification ressources critiques (<20%)
 
+### 5. Gestion Characters (PNJ) (100%)
+- ✅ **Création PNJ Joueur obligatoire après inscription**
+- ✅ Service complet (16 méthodes):
+  - `create_player_character()` - Création personnage joueur unique
+  - `create_ai_character()` - Génération PNJ IA aléatoire
+  - `allocate_stats()` - Allocation points libres (joueur uniquement)
+  - `calculate_power_score()` - Score de puissance
+  - `get_character_stats()` - Stats complètes
+  - `gain_xp()` - Montée niveau automatique
+  - `heal/damage_character()` - Gestion HP
+- ✅ 5 Classes avec stats de base:
+  - Guerrier (+3 Force, +2 Endurance, +1 Vitesse) - Bonus: +10% dégâts mêlée
+  - Éclaireur (+3 Dextérité, +2 Vitesse, +1 Chance) - Bonus: +10% dégâts distance
+  - Artisan (+3 Intelligence, +2 Dextérité, +1 Force) - Bonus: -10% coût craft
+  - Leader (+2 Endurance, +2 Intelligence, +2 Chance) - Bonus: +5% production globale
+  - Survivant (+1 tous stats) - Bonus: +5% XP permanents
+- ✅ 10 Personnalités PNJ IA:
+  - Amical, Timide, Autoritaire, Sage, Jovial, Méthodique, Aventurier, Maternel, Grognon, Mystérieux
+  - Chacune avec triggers, impacts relations, humeur, sujets favoris
+- ✅ 14 Routes API:
+  - `POST /characters` - Création personnage joueur
+  - `POST /characters/ai` - Création PNJ IA
+  - `GET /characters/me` - Personnage joueur
+  - `GET /characters` - Tous personnages village
+  - `GET /characters/ai` - PNJ IA uniquement
+  - `GET /characters/{id}` - Détails personnage
+  - `GET /characters/{id}/stats` - Statistiques complètes
+  - `PUT /characters/{id}` - Mise à jour nom/bio/apparence
+  - `POST /characters/{id}/allocate-stats` - Allocation stats
+  - `POST /characters/{id}/heal` - Soigner (debug)
+  - `POST /characters/{id}/damage` - Dégâts (debug)
+  - `POST /characters/{id}/gain-xp` - Donner XP (debug)
+  - `DELETE /characters/{id}` - Supprimer PNJ IA (protection joueur)
+- ✅ Système stats:
+  - 10 points libres à la création
+  - Calcul HP max (100 + Endurance × 10)
+  - XP: 100 × niveau²
+  - Montée niveau: +1 point libre, restauration HP
+- ✅ Génération apparence aléatoire PNJ IA
+- ✅ Route `/auth/check-character` pour vérifier création personnage
+- ✅ Protection: 1 seul personnage joueur, non supprimable, impossible de supprimer si en mission
+
 ## 🔄 En cours
 
-### 5. Gestion Characters (PNJ) (0%)
-**Prochaine étape** : Implémentation du service characters
+### 6. Gestion Buildings (0%)
+**Prochaine étape** : Implémentation du service buildings
 
 Fonctionnalités à implémenter:
-- [ ] Création PNJ Joueur (obligatoire après inscription)
-- [ ] Système de classes (Guerrier, Éclaireur, Artisan, Leader, Survivant)
-- [ ] Répartition stats (Force, Dextérité, Endurance, Vitesse, Intelligence, Chance)
-- [ ] Personnalisation apparence (10+ options)
-- [ ] Génération PNJ IA avec personnalités (10 types: Amical, Timide, Autoritaire, etc.)
-- [ ] Calcul puissance PNJ (stats + équipement)
-- [ ] Système d'équipement (9 slots)
+- [ ] Construction bâtiments (20 types, 4 catégories)
+- [ ] Placement automatique en spirale
+- [ ] Système d'amélioration (1-5 niveaux)
+- [ ] Calcul production avec PNJ assignés
+- [ ] Prérequis recherches
 - [ ] Routes CRUD complètes
 
 ## 📊 Statistiques
@@ -66,9 +106,9 @@ Fonctionnalités à implémenter:
 ### Code produit
 - **Modèles**: 18 fichiers SQLAlchemy
 - **Schémas**: 13 fichiers Pydantic (50+ classes)
-- **Services**: 3 (auth, user, village)
-- **Routes**: 3 routers (auth, user, village)
-- **Endpoints API**: ~20 routes fonctionnelles
+- **Services**: 4 (auth, user, village, character)
+- **Routes**: 4 routers (auth, user, village, character)
+- **Endpoints API**: ~35 routes fonctionnelles
 
 ### Tests
 - ✅ Serveur démarre sans erreur
@@ -76,18 +116,18 @@ Fonctionnalités à implémenter:
 - ⏳ Script test API complet (test_api_flow.py créé)
 
 ### Commits Git
-- 4 commits principaux
+- 5 commits principaux
 - Repository: https://github.com/Scoplop/Loots-Live.git
 
 ## 🎯 Roadmap
 
-### Phase 1 : Core Game (En cours - 40%)
+### Phase 1 : Core Game (En cours - 50%)
 - [x] Infrastructure
 - [x] Authentification
 - [x] Users
 - [x] Villages de base
-- [ ] **Characters (PNJ)** ← Actuellement
-- [ ] Buildings (placement, production)
+- [x] **Characters (PNJ)**
+- [ ] **Buildings (placement, production)** ← Actuellement
 - [ ] Missions (3 types)
 - [ ] Equipment (génération, rareté)
 - [ ] Research (arbre techno)
@@ -149,5 +189,5 @@ Docs API : http://127.0.0.1:8000/docs
 
 ---
 
-**Dernière mise à jour** : 07/11/2025 21:45  
-**Status** : ✅ Système village fonctionnel, prêt pour Characters
+**Dernière mise à jour** : 07/11/2025 22:00  
+**Status** : ✅ Système Characters complet (50% Phase 1), prêt pour Buildings
