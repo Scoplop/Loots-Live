@@ -83,9 +83,10 @@ from backend.app.schemas.mission import (
 from backend.app.schemas.research import (
     ResearchBase,
     ResearchCreate,
-    ResearchResponse,
-    ResearchStart,
-    ResearchProgress,
+    ResearchRead,
+    ResearchDetails,
+    ResearchTree,
+    ResearchBonuses,
 )
 
 # Relationship
@@ -193,9 +194,10 @@ __all__ = [
     # Research
     "ResearchBase",
     "ResearchCreate",
-    "ResearchResponse",
-    "ResearchStart",
-    "ResearchProgress",
+    "ResearchRead",
+    "ResearchDetails",
+    "ResearchTree",
+    "ResearchBonuses",
     # Relationship
     "RelationshipBase",
     "RelationshipCreate",

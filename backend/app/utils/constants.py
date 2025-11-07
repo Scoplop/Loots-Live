@@ -98,6 +98,14 @@ class BuildingCategory(str, Enum):
     AUTOMATION = "automation"
 
 
+class ResearchCategory(str, Enum):
+    """Catégories de recherches"""
+    AGRICULTURE = "agriculture"
+    MILITARY = "military"
+    ECONOMY = "economy"
+    SCIENCE = "science"
+
+
 class ResourceType(str, Enum):
     """Types de ressources"""
     # Village (20)
@@ -415,3 +423,386 @@ MAX_BIOGRAPHY_LENGTH = 500
 DEFAULT_WAREHOUSE_CAPACITY = 1000
 DEFAULT_MORAL = 70
 DEFAULT_HP = 100
+
+
+# ============================================================================
+# ARBRE TECHNOLOGIQUE (RESEARCHES)
+# ============================================================================
+
+RESEARCH_TREE = {
+    # ========== AGRICULTURE ==========
+    "agriculture_1": {
+        "name": "Agriculture de base",
+        "description": "Techniques agricoles essentielles pour cultiver plus efficacement",
+        "category": ResearchCategory.AGRICULTURE,
+        "prerequisites": [],
+        "costs": {
+            "wood": 50,
+            "knowledge_points": 10
+        },
+        "duration_hours": 1,
+        "effects": {
+            "production_bonus": 10,  # +10% production Food/Wheat
+            "unlocks_buildings": ["farm_upgrade"]
+        }
+    },
+    "agriculture_2": {
+        "name": "Agriculture avancée",
+        "description": "Rotation des cultures et irrigation avancée",
+        "category": ResearchCategory.AGRICULTURE,
+        "prerequisites": ["agriculture_1"],
+        "costs": {
+            "wood": 150,
+            "seeds": 50,
+            "knowledge_points": 25
+        },
+        "duration_hours": 3,
+        "effects": {
+            "production_bonus": 15,
+            "unlocks_buildings": ["greenhouse"]
+        }
+    },
+    "livestock": {
+        "name": "Élevage",
+        "description": "Domestication et élevage d'animaux",
+        "category": ResearchCategory.AGRICULTURE,
+        "prerequisites": ["agriculture_1"],
+        "costs": {
+            "wood": 100,
+            "food": 50,
+            "knowledge_points": 20
+        },
+        "duration_hours": 2,
+        "effects": {
+            "production_bonus": 10,
+            "unlocks_buildings": ["stable"]
+        }
+    },
+    "herbalism": {
+        "name": "Herboristerie",
+        "description": "Connaissance des plantes médicinales",
+        "category": ResearchCategory.AGRICULTURE,
+        "prerequisites": ["agriculture_1"],
+        "costs": {
+            "herb": 30,
+            "book": 5,
+            "knowledge_points": 15
+        },
+        "duration_hours": 2,
+        "effects": {
+            "production_bonus": 10,
+            "special_ability": "heal_boost"  # +20% efficacité soins
+        }
+    },
+    "irrigation": {
+        "name": "Irrigation avancée",
+        "description": "Systèmes d'irrigation sophistiqués",
+        "category": ResearchCategory.AGRICULTURE,
+        "prerequisites": ["agriculture_2"],
+        "costs": {
+            "stone": 200,
+            "metal": 100,
+            "knowledge_points": 40
+        },
+        "duration_hours": 5,
+        "effects": {
+            "production_bonus": 25,
+            "construction_speed_bonus": 10
+        }
+    },
+    
+    # ========== MILITARY ==========
+    "basic_weapons": {
+        "name": "Armement de base",
+        "description": "Fabrication d'armes simples",
+        "category": ResearchCategory.MILITARY,
+        "prerequisites": [],
+        "costs": {
+            "wood": 50,
+            "metal": 30,
+            "knowledge_points": 10
+        },
+        "duration_hours": 1,
+        "effects": {
+            "mission_success_bonus": 5,
+            "unlocks_equipment": ["iron_sword", "wooden_bow"]
+        }
+    },
+    "basic_armor": {
+        "name": "Armures de base",
+        "description": "Fabrication d'armures simples",
+        "category": ResearchCategory.MILITARY,
+        "prerequisites": [],
+        "costs": {
+            "leather": 40,
+            "metal": 20,
+            "knowledge_points": 10
+        },
+        "duration_hours": 1,
+        "effects": {
+            "mission_success_bonus": 5,
+            "unlocks_equipment": ["leather_armor", "iron_helmet"]
+        }
+    },
+    "advanced_weapons": {
+        "name": "Armement avancé",
+        "description": "Armes de qualité supérieure",
+        "category": ResearchCategory.MILITARY,
+        "prerequisites": ["basic_weapons"],
+        "costs": {
+            "metal": 150,
+            "rare_ore": 50,
+            "knowledge_points": 30
+        },
+        "duration_hours": 4,
+        "effects": {
+            "mission_success_bonus": 10,
+            "unlocks_equipment": ["steel_sword", "crossbow", "pike"]
+        }
+    },
+    "advanced_armor": {
+        "name": "Armures avancées",
+        "description": "Protection renforcée",
+        "category": ResearchCategory.MILITARY,
+        "prerequisites": ["basic_armor"],
+        "costs": {
+            "metal": 200,
+            "cloth": 100,
+            "knowledge_points": 30
+        },
+        "duration_hours": 4,
+        "effects": {
+            "mission_success_bonus": 10,
+            "unlocks_equipment": ["steel_armor", "chainmail"]
+        }
+    },
+    "tactics": {
+        "name": "Tactiques militaires",
+        "description": "Formation et stratégie de combat",
+        "category": ResearchCategory.MILITARY,
+        "prerequisites": ["basic_weapons", "basic_armor"],
+        "costs": {
+            "book": 10,
+            "knowledge_points": 25
+        },
+        "duration_hours": 3,
+        "effects": {
+            "mission_success_bonus": 15,
+            "special_ability": "tactical_advantage"
+        }
+    },
+    "fortification": {
+        "name": "Fortification",
+        "description": "Murs et défenses avancées",
+        "category": ResearchCategory.MILITARY,
+        "prerequisites": ["tactics"],
+        "costs": {
+            "stone": 300,
+            "wood": 200,
+            "knowledge_points": 35
+        },
+        "duration_hours": 6,
+        "effects": {
+            "unlocks_buildings": ["guard_tower", "wall"]
+        }
+    },
+    
+    # ========== ECONOMY ==========
+    "basic_trade": {
+        "name": "Commerce de base",
+        "description": "Principes fondamentaux du commerce",
+        "category": ResearchCategory.ECONOMY,
+        "prerequisites": [],
+        "costs": {
+            "gold": 50,
+            "knowledge_points": 10
+        },
+        "duration_hours": 1,
+        "effects": {
+            "production_bonus": 5,
+            "unlocks_buildings": ["market"]
+        }
+    },
+    "advanced_trade": {
+        "name": "Commerce avancé",
+        "description": "Routes commerciales et négociation",
+        "category": ResearchCategory.ECONOMY,
+        "prerequisites": ["basic_trade"],
+        "costs": {
+            "gold": 200,
+            "paper": 50,
+            "knowledge_points": 30
+        },
+        "duration_hours": 4,
+        "effects": {
+            "production_bonus": 10,
+            "special_ability": "better_prices"  # -15% coûts, +15% ventes
+        }
+    },
+    "craftsmanship": {
+        "name": "Artisanat",
+        "description": "Techniques de fabrication améliorées",
+        "category": ResearchCategory.ECONOMY,
+        "prerequisites": [],
+        "costs": {
+            "wood": 100,
+            "metal": 50,
+            "knowledge_points": 15
+        },
+        "duration_hours": 2,
+        "effects": {
+            "production_bonus": 10,
+            "unlocks_buildings": ["workshop"]
+        }
+    },
+    "metallurgy": {
+        "name": "Métallurgie",
+        "description": "Travail avancé des métaux",
+        "category": ResearchCategory.ECONOMY,
+        "prerequisites": ["craftsmanship"],
+        "costs": {
+            "metal": 200,
+            "rare_ore": 100,
+            "knowledge_points": 35
+        },
+        "duration_hours": 5,
+        "effects": {
+            "production_bonus": 15,
+            "unlocks_buildings": ["foundry"],
+            "unlocks_equipment": ["mithril_gear"]
+        }
+    },
+    "textile_industry": {
+        "name": "Industrie textile",
+        "description": "Production de tissus de qualité",
+        "category": ResearchCategory.ECONOMY,
+        "prerequisites": ["craftsmanship"],
+        "costs": {
+            "cotton": 150,
+            "linen": 100,
+            "knowledge_points": 25
+        },
+        "duration_hours": 3,
+        "effects": {
+            "production_bonus": 15,
+            "unlocks_buildings": ["textile_mill"]
+        }
+    },
+    "mining": {
+        "name": "Exploitation minière",
+        "description": "Techniques d'extraction avancées",
+        "category": ResearchCategory.ECONOMY,
+        "prerequisites": ["craftsmanship"],
+        "costs": {
+            "tools": 100,
+            "stone": 150,
+            "knowledge_points": 30
+        },
+        "duration_hours": 4,
+        "effects": {
+            "production_bonus": 20,
+            "unlocks_buildings": ["mine"]
+        }
+    },
+    
+    # ========== SCIENCE ==========
+    "basic_research": {
+        "name": "Recherche de base",
+        "description": "Méthode scientifique et observation",
+        "category": ResearchCategory.SCIENCE,
+        "prerequisites": [],
+        "costs": {
+            "book": 5,
+            "knowledge_points": 10
+        },
+        "duration_hours": 1,
+        "effects": {
+            "research_speed_bonus": 10,
+            "unlocks_buildings": ["library"]
+        }
+    },
+    "advanced_research": {
+        "name": "Recherche avancée",
+        "description": "Laboratoires et expérimentation",
+        "category": ResearchCategory.SCIENCE,
+        "prerequisites": ["basic_research"],
+        "costs": {
+            "book": 20,
+            "paper": 100,
+            "ink": 50,
+            "knowledge_points": 40
+        },
+        "duration_hours": 5,
+        "effects": {
+            "research_speed_bonus": 20,
+            "unlocks_buildings": ["laboratory"]
+        }
+    },
+    "medicine": {
+        "name": "Médecine",
+        "description": "Soins et traitement des blessures",
+        "category": ResearchCategory.SCIENCE,
+        "prerequisites": ["basic_research", "herbalism"],
+        "costs": {
+            "herb": 100,
+            "book": 10,
+            "knowledge_points": 30
+        },
+        "duration_hours": 4,
+        "effects": {
+            "special_ability": "faster_healing",  # +50% régénération HP
+            "unlocks_buildings": ["infirmary"]
+        }
+    },
+    "engineering": {
+        "name": "Ingénierie",
+        "description": "Machines et constructions complexes",
+        "category": ResearchCategory.SCIENCE,
+        "prerequisites": ["basic_research", "craftsmanship"],
+        "costs": {
+            "metal": 200,
+            "tools": 150,
+            "knowledge_points": 40
+        },
+        "duration_hours": 6,
+        "effects": {
+            "construction_speed_bonus": 25,
+            "production_bonus": 15
+        }
+    },
+    "alchemy": {
+        "name": "Alchimie",
+        "description": "Transformation et potions",
+        "category": ResearchCategory.SCIENCE,
+        "prerequisites": ["medicine", "advanced_research"],
+        "costs": {
+            "herb": 200,
+            "rare_ore": 100,
+            "gem": 50,
+            "knowledge_points": 50
+        },
+        "duration_hours": 8,
+        "effects": {
+            "special_ability": "alchemy_transmutation",
+            "unlocks_buildings": ["alchemy_lab"]
+        }
+    },
+    "ancient_knowledge": {
+        "name": "Savoirs anciens",
+        "description": "Redécouverte des technologies perdues",
+        "category": ResearchCategory.SCIENCE,
+        "prerequisites": ["advanced_research", "alchemy"],
+        "costs": {
+            "ancient_relic": 10,
+            "book": 50,
+            "knowledge_points": 100
+        },
+        "duration_hours": 12,
+        "effects": {
+            "research_speed_bonus": 30,
+            "production_bonus": 20,
+            "mission_success_bonus": 15,
+            "special_ability": "ancient_power"
+        }
+    }
+}

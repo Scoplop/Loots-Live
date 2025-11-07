@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 
 from backend.app.config import settings
 from backend.app.database import init_db, close_db
-from backend.app.routes import auth, user, village, character, building, mission, equipment
+from backend.app.routes import auth, user, village, character, building, mission, equipment, research
 
 
 @asynccontextmanager
@@ -80,6 +80,7 @@ app.include_router(character.router)
 app.include_router(building.router)
 app.include_router(mission.router)
 app.include_router(equipment.router)
+app.include_router(research.router)
 
 
 @app.get("/", tags=["Root"])

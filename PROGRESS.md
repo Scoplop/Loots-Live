@@ -179,17 +179,68 @@
   - Impossible ajouter PNJ déjà en mission
   - Impossible ajouter PNJ à 0 HP
 
+### 8. Gestion Equipment (100%)
+- ✅ **Service complet (10 méthodes)**:
+  - `generate_equipment()` - Génération procédurale aléatoire
+  - `craft_equipment()` - Craft avec coût ressources
+  - `upgrade_equipment()` - Amélioration rareté (coût progressif)
+  - `equip_item()` - Équiper sur PNJ avec validation slot
+  - `unequip_item()` - Déséquiper vers inventaire
+  - `calculate_equipment_stats()` - Calcul bonus stats
+  - `get_village_equipment()` - Inventaire avec filtres
+  - `get_character_equipment()` - Équipement équipé
+  - `delete_equipment()` - Suppression (protection si équipé)
+- ✅ **6 Raretés** avec multiplicateurs:
+  - **Common** (Gris): ×1.0
+  - **Uncommon** (Vert): ×1.15
+  - **Rare** (Bleu): ×1.30
+  - **Epic** (Violet): ×1.50
+  - **Legendary** (Orange): ×1.80
+  - **Mythic** (Or/Rouge): ×2.20
+- ✅ **11 Slots équipement**:
+  - Head, Shoulders, Torso, Legs, Feet, Hands
+  - Jewelry_1, Jewelry_2, Jewelry_3
+  - Weapon_1, Weapon_2
+- ✅ **Génération procédurale**:
+  - Stats aléatoires 1-10 base × multiplicateur rareté
+  - 8 types bonus: Strength, Dexterity, Endurance, Intelligence, Speed, Luck, Armor, Damage
+  - Noms thématiques: 500+ combinaisons (Casque de fer, Épée légendaire, Anneau mystique, etc.)
+  - Préfixes rareté: "de fer" (Common), "renforcé" (Uncommon), "enchanté" (Rare), etc.
+- ✅ **Système craft**:
+  - Coût ressources selon rareté
+  - Bonus +20% réduction si Artisan dans village
+  - Validation disponibilité ressources
+- ✅ **Système upgrade**:
+  - Coûts progressifs: Common→Uncommon (50), ..., Legendary→Mythic (500)
+  - Impossible upgrade si Mythic (max)
+  - Conservation stats + multiplicateur rareté supérieure
+- ✅ **10 Routes API**:
+  - `POST /equipment/generate` - Générer aléatoire
+  - `POST /equipment/craft` - Crafter
+  - `POST /equipment/{id}/upgrade` - Améliorer
+  - `POST /equipment/{id}/equip` - Équiper sur PNJ
+  - `POST /equipment/{id}/unequip` - Déséquiper
+  - `GET /equipment` - Inventaire village (filtres rareté/slot)
+  - `GET /equipment/{id}` - Détails
+  - `GET /equipment/character/{id}` - Équipement du PNJ
+  - `GET /equipment/{id}/stats` - Bonus stats
+  - `DELETE /equipment/{id}` - Supprimer
+- ✅ **Validations**:
+  - Un seul équipement par slot
+  - Impossible supprimer si équipé
+  - Appartenance village vérifiée
+  - Slot compatible avec type équipement
+
 ## 🔄 En cours
 
-### 8. Gestion Equipment (0%)
-**Prochaine étape** : Implémentation du service equipment
+### 9. Gestion Research (0%)
+**Prochaine étape** : Implémentation du service research (arbre technologique)
 
 Fonctionnalités à implémenter:
-- [ ] Génération équipement procédurale
-- [ ] 6 raretés (Common → Mythic)
-- [ ] 11 slots équipement
-- [ ] Calcul stats bonus
-- [ ] Craft et amélioration
+- [ ] Arbre technologique (20+ recherches)
+- [ ] Prérequis chaînés
+- [ ] Coûts progressifs (ressources + temps)
+- [ ] Déblocages bâtiments/équipements
 - [ ] Routes CRUD complètes
 
 ## 📊 Statistiques
@@ -197,9 +248,9 @@ Fonctionnalités à implémenter:
 ### Code produit
 - **Modèles**: 18 fichiers SQLAlchemy
 - **Schémas**: 13 fichiers Pydantic (50+ classes)
-- **Services**: 6 (auth, user, village, character, building, mission)
-- **Routes**: 6 routers (auth, user, village, character, building, mission)
-- **Endpoints API**: ~55 routes fonctionnelles
+- **Services**: 7 (auth, user, village, character, building, mission, equipment)
+- **Routes**: 7 routers (auth, user, village, character, building, mission, equipment)
+- **Endpoints API**: ~65 routes fonctionnelles
 
 ### Tests
 - ✅ Serveur démarre sans erreur
@@ -207,12 +258,12 @@ Fonctionnalités à implémenter:
 - ⏳ Script test API complet (test_api_flow.py créé)
 
 ### Commits Git
-- 9 commits principaux
+- 11 commits principaux
 - Repository: https://github.com/Scoplop/Loots-Live.git
 
 ## 🎯 Roadmap
 
-### Phase 1 : Core Game (En cours - 70%)
+### Phase 1 : Core Game (En cours - 80%)
 - [x] Infrastructure
 - [x] Authentification
 - [x] Users
@@ -220,8 +271,8 @@ Fonctionnalités à implémenter:
 - [x] **Characters (PNJ)**
 - [x] **Buildings (placement, production)**
 - [x] **Missions (3 types)**
-- [ ] **Equipment (génération, rareté)** ← Actuellement
-- [ ] Research (arbre techno)
+- [x] **Equipment (génération, rareté)**
+- [ ] **Research (arbre techno)** ← Actuellement
 
 ### Phase 2 : Game Loop (0%)
 - [ ] Workers background (production, missions, events, healing)
