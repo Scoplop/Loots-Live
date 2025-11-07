@@ -2,7 +2,7 @@
 Package des routes API.
 """
 
-from backend.app.routes import auth
+from backend.app.routes import auth, user
 
-__all__ = ["auth"]
+__all__ = ["auth", "user"]
 
